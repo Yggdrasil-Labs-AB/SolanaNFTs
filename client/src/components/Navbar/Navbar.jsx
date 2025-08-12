@@ -43,6 +43,9 @@ const Navbar = () => {
 
         const callAsync = async () => {
             if (wallet.publicKey) {
+
+                if (import.meta.env.MODE !== "production") return;
+
                 const babyBooh = await fetchBabyBooh(wallet.publicKey.toString());
 
                 if (babyBooh > -1) {

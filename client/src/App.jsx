@@ -10,6 +10,7 @@ import CreatorHubDocs from './components/pages/CreatorHubDocs';
 import CharacterSubmission from './components/pages/CharacterSubmission';
 import Admin from './components/pages/Admin';
 import Whitelist from './components/pages/Whitelist';
+import TokenSync from './components/pages/TokenSync';
 
 function App() {
 
@@ -26,6 +27,8 @@ function App() {
             <Route path='/docs' element={<CreatorHubDocs />} />
             <Route path='/character-submit' element={<CharacterSubmission />} />
             <Route path='/admin' element={<Admin />} />
+            <Route path='/token-sync' element={<TokenSync />} />
+            <Route path='/token-sync/:id' element={<TokenSync />} />
             {/* <Route path={whitelistpath} element={<Whitelist />} /> */}
           </Routes>
         </Router>
