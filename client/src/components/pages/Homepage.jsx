@@ -31,7 +31,7 @@ import { useWalletAdmin } from '../../hooks/useWalletAdmin';
 import { useNftConceptForm } from '../../hooks/useNftConceptForm';
 
 import axios from 'axios';
-import { fetchRollQualityData } from '../../services/gameServices';
+import { fetchRollQualityData, GetMinimumVersion } from '../../services/gameServices';
 import { getCoreNftsServerDevnet } from '../../archived/GetNFTsUtils';
 
 const Homepage = () => {
@@ -95,13 +95,13 @@ const Homepage = () => {
     //THIS EFFECT IS FOR TESTING APIS
     useEffect(() => {
 
-        const asyncCall = async () => {
+        // const asyncCall = async () => {
 
-            const resp = await getCoreNftsServerDevnet(wallet.publicKey?.toBase58());
-            console.log(resp?.data);
-        }
+        //     const data = await GetMinimumVersion();
+        //     console.log(data);
+        // }
 
-        asyncCall();
+        // asyncCall();
     }, [wallet])
 
     //This combines Store & Metadata for any NEW adds to the Database

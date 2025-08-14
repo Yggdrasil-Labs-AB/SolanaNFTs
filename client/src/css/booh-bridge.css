@@ -1,0 +1,254 @@
+:root{
+  --bg-1:#0f0f16;
+  --bg-2:#1a1a25;
+  --card:#12121b;
+  --card-2:#0f1018;
+  --text:#d9dbdf;
+  --bridgeText: #c9a4c8;
+  --muted:#9aa0aa;
+  --accent:#b6a6ff;   /* lavender */
+  --accent-2:#a996ff;
+  --stroke:#2a2a39;
+  --pill:#191a25;
+  --radius:14px;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  font-synthesis-weight: none;
+}
+
+.bridge-page {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    gap: 28px;
+}
+
+.bridge-card {
+    width: 100%;
+    max-width: 560px;
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    position: relative;
+}
+
+.refresh {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    border: 1px solid var(--stroke);
+    color: var(--muted);
+    width: 150px;
+}
+
+.refresh p {
+    margin: 0px;
+    width: 100%;
+}
+
+.field-group {
+    margin-top: 18px
+}
+
+.field-label {
+    display: block;
+    font-size: 14px;
+    letter-spacing: .2px;
+    color: var(--muted);
+    margin: 0 0 8px;
+    color: #bcbcbc
+}
+
+.select-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: #0c0d15;
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.select-row:hover {
+    border-color: #3a3a4a
+}
+
+.select-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px
+}
+
+.token-pill {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #242437, #1a1a2a);
+    border: 1px solid #343449;
+    display: inline-block;
+}
+
+/* dropdown menu matching your dark style */
+.menu-bridge{
+  position:absolute;
+  z-index:20;
+  left:0; right:0;
+  margin-top:8px;
+  padding:6px;
+  background:#0c0d15;
+  border:1px solid var(--stroke);
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+.menu-item-bridge{
+  width:100%;
+  text-align:left;
+  background:transparent;
+  color:var(--text);
+  border:0;
+  border-radius:10px;
+  padding:12px 12px;
+  cursor:pointer;
+}
+
+.menu-item-bridge:hover,
+.menu-item-bridge:focus-visible{
+  background:#141527;
+  outline:none;
+}
+
+.select-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--bridgeText);
+}
+
+.select-text strong {
+    font-weight: 600;
+}
+
+.select-text small {
+    color: var(--muted);
+}
+
+.chev {
+    margin-left: auto;
+    width: 18px;
+    height: 18px;
+    color: #9aa0aa
+}
+
+.swap-dots {
+    display: grid;
+    place-items: center;
+    margin: 12px 0 6px;
+    color: #7f8499;
+    opacity: .9;
+}
+
+.amount-row {
+    display: flex;
+    align-items: center;
+    background: #0c0d15;
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    padding: 8px;
+    gap: 8px;
+}
+
+.amount-input {
+    flex: 1;
+    height: 44px;
+    background: transparent;
+    border: 0;
+    color: var(--text);
+    font-size: 18px;
+    padding: 0 10px;
+    outline: none;
+}
+
+.amount-input::placeholder {
+    color: #6f7484
+}
+
+.max-btn {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid #37384a;
+    background: #131426;
+    color: #aeb4c2;
+    cursor: pointer;
+}
+
+.max-btn:hover {
+    border-color: #4b4d63;
+    color: #d4d7e1
+}
+
+.cta {
+    width: 100%;
+    margin-top: 18px;
+    border: 0;
+    height: 48px;
+    border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: .2px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-2));
+    color: #14141c;
+    cursor: pointer;
+}
+
+.cta:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.powered {
+    margin: 12px 0 0;
+    text-align: center;
+    font-size: 12px;
+    color: #9aa0aa;
+}
+
+.powered b {
+    letter-spacing: .7px
+}
+
+.bridge-footer {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 14px;
+}
+
+.bridge-footer a {
+    color: #c8cbe2;
+    text-decoration: none;
+}
+
+.bridge-footer a:hover {
+    text-decoration: underline
+}
+
+/* small tweaks for mobile */
+@media (max-width:420px) {
+    .bridge-card {
+        padding: 22px
+    }
+
+    .amount-input {
+        font-size: 16px
+    }
+}

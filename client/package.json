@@ -28,6 +28,7 @@
     "@stripe/react-stripe-js": "^3.1.1",
     "@stripe/stripe-js": "^5.5.0",
     "axios": "^1.7.9",
+    "base64-js": "^1.5.1",
     "bootstrap": "^5.3.3",
     "bs58": "^6.0.0",
     "framer-motion": "^11.18.1",

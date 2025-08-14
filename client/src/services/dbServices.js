@@ -457,3 +457,57 @@ export const updateBlueprintMetadata = async (walletAddress) => {
         return { success: false, error: error.response?.data?.error || "An unexpected error occurred" };
     }
 }
+
+//Build server side transaction from Game $BOOH to Blockchain $BOOH
+export const buildGToBTX = async (pubKey, amount) => {
+
+    try {
+
+        const response = await axios.post(
+            `${URI_SERVER}/api/tokensync/gtob`,
+            {pubKey, amount},
+            {
+                headers: {
+                    "x-api-key": API_KEY,
+                }
+            }
+        );
+
+        if(response.status === 200)
+            return response.data; // Success response
+        
+
+    } catch (error) {
+        console.error("Error to replace attribute:", error.response?.data || error.message);
+
+        // Return error instead of throwing
+        return { success: false, error: error.response?.data?.error || "An unexpected error occurred" };
+    }
+}
+
+//Build server side transaction from Game $BOOH to Blockchain $BOOH
+export const sendBuiltTokenSyncTX = async (pubKey, amount, base64UserSignedTx, blockhash, lastValidBlockHeight, playerId) => {
+
+    try {
+
+        const response = await axios.post(
+            `${URI_SERVER}/api/tokensync/signedTx`,
+            {pubKey, amount, base64UserSignedTx, blockhash, lastValidBlockHeight, playerId},
+            {
+                headers: {
+                    "x-api-key": API_KEY,
+                }
+            }
+        );
+
+        if(response.status === 200)
+            return response.data; // Success response
+        
+
+    } catch (error) {
+        console.error("Failed to Complete TX:", error.response?.data || error.message);
+
+        // Return error instead of throwing
+        return { success: false, error: error.response?.data?.error || "An unexpected error occurred" };
+    }
+}

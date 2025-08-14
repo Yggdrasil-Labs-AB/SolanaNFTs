@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { fetchRollQualityHelper } = require('../utils/gameHelpers');
+const { fetchRollQualityHelper, validateGameIdUtils, DeductInGameBabyBooh } = require('../utils/gameHelpers');
 
 exports.getInGameCurrency = async (req, res) => {
     try {
@@ -45,32 +45,25 @@ exports.deductInGameCurrency = async (req, res) => {
 
     try {
         // Extract the address from query parameters
-        const { address, amount } = req.body;
+        const { playerId, amount } = req.body;
 
-        if (!address) {
+        const conversionAmount = amount;
+
+        if (!playerId)
             return res.status(400).json({ error: "Address is required" });
-        }
 
-        console.log(`Address: ${address}, Amount Deduct: ${amount}`);
+        if (!conversionAmount)
+            return res.status(400).json({ error: "No Amount sent" });
 
-        // Build the external API URL
-        const buildURL = `${process.env.VERCEL_URL}/user/balance/decrement?wallet=${address}&amount=${amount}`;
+        const playerContent = await validateGameIdUtils(playerId); //Returns BabyBooh
 
-        // Make the request to the external API
-        const response = await axios.post(
-            buildURL, // The URL of the external API
-            {}, // The body of the POST request (empty object in this case)
-            {
-                headers: {
-                    Authorization: `Bearer ${process.env.TOKEN_BEARER}`, // Authorization header
-                },
-            }
-        );
+        const newAmount = playerContent[1].value.BabyBoohCoin - conversionAmount;
+        const cryptoData = playerContent[1];
 
-        console.log(response.data);
+        const writeLock = await DeductInGameBabyBooh(playerId, newAmount, cryptoData);
 
         // Return the data as a response
-        res.status(200).json(response.data);
+        res.status(200).json(writeLock);
     } catch (error) {
         // Enhanced error logging
         if (error.response) {
@@ -110,4 +103,56 @@ exports.fetchRollQualityData = async (req, res) => {
         }
     }
 };
+
+exports.validateGameId = async (req, res) => {
+    try {
+
+        const { playerId } = req.body;
+
+        if (!playerId)
+            res.status(400).json({ error: "No Player Id Found" });
+
+        const playerContent = await validateGameIdUtils(playerId); //Returns BabyBooh
+
+        res.status(200).json(playerContent[1].value.BabyBoohCoin);
+
+    } catch (error) {
+        if (error.response) {
+            console.error("API Error Response:", error.response.status, error.response.data);
+            res.status(error.response.status).json({ error: error.response.data || "External API Error" });
+        } else if (error.request) {
+            console.error("No response received from API:", error.request);
+            res.status(502).json({ error: "No response from external API" });
+        } else {
+            console.error("Request setup error:", error.message);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+}
+
+exports.getMinimumGameVersion = (req, res) => {
+
+    try {
+        const minimumVersion = {
+            minIOSVersion: '1.1.396',
+            minAndroidVersion: '',
+            updateUrl: 'updateURL'
+        }
+
+        res.status(200).json(minimumVersion);
+
+    } catch (error) {
+        if (error.response) {
+            console.error("API Error Response:", error.response.status, error.response.data);
+            res.status(error.response.status).json({ error: error.response.data || "External API Error" });
+        } else if (error.request) {
+            console.error("No response received from API:", error.request);
+            res.status(502).json({ error: "No response from external API" });
+        } else {
+            console.error("Request setup error:", error.message);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+
+}
 
