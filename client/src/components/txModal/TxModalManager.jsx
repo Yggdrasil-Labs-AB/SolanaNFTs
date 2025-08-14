@@ -13,6 +13,7 @@ import TxModalUploadImage from './ModalTypes/TxModalUploadImage';
 import TxModalDisconnect from './ModalTypes/TxModalDisconnect';
 import TxModalCreator from './ModalTypes/TxModalCreator';
 import TxModalAppRedirect from './ModalTypes/TxModalAppRedirect';
+import TxModalTokenSync from './ModalTypes/TxModalTokenSync';
 
 const TxModalManager = ({  
     createNft, 
@@ -42,6 +43,8 @@ const TxModalManager = ({
                 return <TxModalDisconnect />
             case 'appRedirect':
                 return <TxModalAppRedirect />
+            case 'tokenSync':
+                return <TxModalTokenSync />
             default:
                 return <TxModalMint createNft={createNft} />; //Default for Stripe Redirect
         }

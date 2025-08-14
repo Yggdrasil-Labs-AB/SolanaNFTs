@@ -121,7 +121,7 @@ const Marketplace = () => {
                         break;
 
                     case 'BABYBOOH':
-                        console.log('In Baby Booh');
+                        { console.log('In Baby Booh');
                         // TODO: Implement conversion rate for BABY BOOH
                         setPreCalcPayment(mintCosts);
                         setSolPriceLoaded(true);
@@ -132,7 +132,7 @@ const Marketplace = () => {
                         setInGameSpend(inGameCurrencyCost[nftRarity]);
 
                         console.warn("Conversion rate for BABY BOOH is not implemented yet.");
-                        break;
+                        break; }
 
                     case 'CARD':
                         if (nfts[selectedIndex]?.storeInfo?.price) {
@@ -357,8 +357,8 @@ const Marketplace = () => {
 
             const transactionSignature = resp.data.serializedSignature; //Set transaction signature
 
-            if (resp.data.confirmed !== true) //Check if server side confirmation failed
-                await checkTransactionStatus(transactionSignature); //Double check blockchain on frontend
+            // if (resp.data.confirmed !== true) //Check if server side confirmation failed
+            //     await checkTransactionStatus(transactionSignature); //Double check blockchain on frontend
 
             // Log the serialized transaction signature (useful for debugging)
             console.log("Serialized Transaction Signature:", transactionSignature);

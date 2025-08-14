@@ -24,9 +24,11 @@ export const TransactionProvider = ({ children }) => {
     //STATE UI CONTROLLERS
     const [txState, setTxState] = useState('empty'); // 'empty', 'started', 'complete', 'failed'
     const [createState, setCreateState] = useState('empty');
+    const [txSigningState, setTxSigningState] = useState('empty');
 
     //TRANSACTION SIG CONTROLLER
     const [transactionSig, setTransactionSig] = useState(null);
+    const [txError, setTxError] = useState("");
 
     //PAYMENT & PRICE CONTROLLERS
     const [preCalcPayment, setPreCalcPayment] = useState(0);
@@ -48,7 +50,7 @@ export const TransactionProvider = ({ children }) => {
     //MANAGES PAGE SWITCH BETWEEN CREATE & EDIT
     const [page, setPage] = useState(null);
 
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
+    const isMobile = window.innerWidth < 500;
 
     const resetTxModal = () => {
         setIsModalOpen(false);
@@ -72,6 +74,8 @@ export const TransactionProvider = ({ children }) => {
     const reloadStates = () =>{
         setTxState('empty');
         setCreateState('empty');
+        setTxSigningState('empty');
+        setTxError("");
     }
 
     const simpleCloseModal = () => {
@@ -130,8 +134,12 @@ export const TransactionProvider = ({ children }) => {
                 setTxState,
                 createState,
                 setCreateState,
+                txSigningState,
+                setTxSigningState,
                 transactionSig,
                 setTransactionSig,
+                txError,
+                setTxError,
                 preCalcPayment,
                 setPreCalcPayment,
                 paymentTracker,

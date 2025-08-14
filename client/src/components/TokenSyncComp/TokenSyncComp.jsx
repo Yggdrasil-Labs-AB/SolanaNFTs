@@ -1,5 +1,7 @@
 import "../../css/booh-bridge.css";
 
+import { toByteArray } from 'base64-js';
+
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useWalletAdmin } from "../../hooks/useWalletAdmin";
@@ -10,16 +12,28 @@ import { deductBabyBooh, validateGameId } from "../../services/gameServices";
 
 import { useGlobalVariables } from '../../providers/GlobalVariablesProvider';
 
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+
+import { VersionedTransaction } from '@solana/web3.js';
+import { buildGToBTX, sendBuiltTokenSyncTX } from "../../services/dbServices";
+
+import { getTokenBalance } from '../../services/blockchainServices';
+
 const TokenSyncComp = () => {
 
-    const { connectOrDisconnect, isModalOpen } = useTransactionsController();
+    const { wallet } = useWalletAdmin();
+    const { signTransaction } = useWallet();
+    const { connection } = useConnection();
+
+    const { connectOrDisconnect, isModalOpen, setIsModalOpen, setModalType, setTxState, setTxSigningState, setTxError } = useTransactionsController();
     const { id } = useParams();
 
-    const { setInGameCurrency } = useGlobalVariables();
+    const { setInGameCurrency, setBoohToken, inGameCurrency } = useGlobalVariables();
 
     const [open, setOpen] = useState(false);
     const [amount, setAmount] = useState("");
     const [gameIdValidated, setGameIdValidated] = useState(false);
+    const [tokenAmountWarning, setTokenAmountWarning] = useState(false);
 
     const [transferType, setTransferType] = useState("");
     const btnRef = useRef(null);
@@ -59,8 +73,6 @@ const TokenSyncComp = () => {
         })();
     }, []);
 
-    const { wallet } = useWalletAdmin();
-
     const gameSyncedEmoji = gameIdValidated ? "✅" : "❌";
     const walletSyncedEmoji = wallet.publicKey ? "✅" : "❌";
 
@@ -70,29 +82,102 @@ const TokenSyncComp = () => {
 
         if (!connected) return "Connect Source Wallet";
         if (!gameIdValidated) return "Must Link Game Id From Game";
+        if (fromLabel === "Select Transfer Type") return "Select Transfer Type";
         if (!hasAmount) return "Set Conversion Amount";
         return "Convert";
-    }, [wallet?.publicKey, gameIdValidated, amount]);
+    }, [wallet?.publicKey, gameIdValidated, amount, fromLabel]);
 
     const handleAmountChange = (e) => {
         setAmount(e.target.value);
+
+        if(e.target.value > inGameCurrency){
+            //Show Error
+            setTokenAmountWarning(true);
+        } else {
+            //Remove Error
+            setTokenAmountWarning(false);
+        }
     };
 
     const handleButtonClick = () => {
-        if (wallet.publicKey !== null && amount > 0) {
-            transferTokens();
-        } else if (wallet.publicKey !== null && amount <= 0) {
-            //Do nothing
-        } else {
-            console.log("connect");
+
+        if(wallet.publicKey === null)
             connectOrDisconnect();
-        }
+
+        if(wallet.publicKey !== null && amount <= inGameCurrency && fromLabel !== "Select Transfer Type" && amount > 0)
+            transferTokens();
     }
 
     const transferTokens = async () => {
-        const success = await deductBabyBooh(id, amount);
 
-        console.log(success);
+        setModalType('tokenSync');
+        setIsModalOpen(true);
+
+        setTxSigningState('started');
+
+        await sendBoohTx();
+    }
+
+    const sendBoohTx = async () => {
+
+        if (!wallet.publicKey) {
+            console.error("Wallet not connected");
+            return;
+        }
+
+        setTxSigningState('started');
+
+        const data = await buildGToBTX(wallet.publicKey, amount);
+
+        if (data?.success === false) {
+            setTxError(data.error);
+            setTxSigningState('failed');
+            return;
+        }
+
+        // 2. Decode base64 transaction from server
+        const txBytes = toByteArray(data.base64Tx);
+        const transaction = VersionedTransaction.deserialize(txBytes);
+
+        let signedByUser;
+
+        try{
+            signedByUser = await signTransaction(transaction, connection);
+        }catch(e){
+            console.log(e);
+            setTxError("User Cancelled Transaction");
+            setTxSigningState('failed');
+            return;
+        }
+
+        setTxSigningState("complete");
+        setTxState("started");
+
+        const resp = await sendBuiltTokenSyncTX(
+            wallet.publicKey.toString(),
+            amount,
+            btoa(String.fromCharCode(...signedByUser.serialize())),
+            data.blockhash,
+            data.lastValidBlockHeight,
+            id
+        );
+
+        if (resp.success) {
+            setInGameCurrency(resp.newAmount);
+
+            const fetchedBoohToken = await getTokenBalance(wallet.publicKey.toString(), connection);
+
+            if (fetchedBoohToken >= 0) {
+                setBoohToken(fetchedBoohToken);
+            }
+
+            setTxState("complete");
+        } else {
+            setTxState('failed');
+            setTxError(resp.error);
+        }
+
+        console.log(resp.success == true);
     }
 
     return (
@@ -140,7 +225,7 @@ const TokenSyncComp = () => {
                                     In-Game $BOOH
                                 </button>
                             </li>
-                            <li role="option" aria-selected={transferType === "blockchain"}>
+                            {/* <li role="option" aria-selected={transferType === "blockchain"}>
                                 <button
                                     className="menu-item-bridge"
                                     onClick={() => { setTransferType?.("blockchain"); setOpen(false); }}
@@ -148,7 +233,7 @@ const TokenSyncComp = () => {
                                 >
                                     Blockchain $BOOH
                                 </button>
-                            </li>
+                            </li> */}
                         </ul>
                     )}
                 </section>
@@ -198,8 +283,8 @@ const TokenSyncComp = () => {
                         </button>
                     </div>
                 </section>
-
-                <button className="cta" type="button" onClick={handleButtonClick}>
+                {tokenAmountWarning && <p style={{color: 'red', textAlign: 'center'}}>Insufficient Balance</p>}
+                <button className="cta" type="button" onClick={handleButtonClick} disabled={tokenAmountWarning}>
                     {buttonText}
                 </button>
 
