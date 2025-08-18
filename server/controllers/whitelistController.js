@@ -30,9 +30,9 @@ exports.submitAddress = async (req, res) => {
 
     // Check if the total number of submissions has reached the limit (30)
     const submissionCount = await WhitelistSubmission.countDocuments();
-    if (submissionCount >= 300) {
-      return res.status(403).json({ error: "Whitelist is full. No more submissions allowed." });
-    }
+    // if (submissionCount >= 300) {
+    //   return res.status(403).json({ error: "Whitelist is full. No more submissions allowed." });
+    // }
 
     // Check if the address already exists
     const existingSubmission = await WhitelistSubmission.findOne({ email });

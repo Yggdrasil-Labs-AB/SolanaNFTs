@@ -55,7 +55,7 @@ const Admin = () => {
         try {
             for (const email of EmailList) {
                 console.log(email);
-                const resp = await submitWhitelistAddress(email, email, email);
+                const resp = await submitWhitelistAddress("none", email, "none");
                 console.log(resp);
             }
         } catch (e) {

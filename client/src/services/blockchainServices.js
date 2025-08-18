@@ -16,7 +16,7 @@ import { fetchAssetsByOwner } from '@metaplex-foundation/mpl-core'
 import { IS_MAINNET } from '../config/config'
 import { URI_SERVER, COLLECTION_ADDRESS } from '../config/config'
 
-import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { Connection } from '@solana/web3.js';
 
 import axios from 'axios';
 
@@ -97,6 +97,7 @@ export const createCoreCollection = async (wallet) => {
         }).sendAndConfirm(umi);
 
         console.log("Collection created successfully:", collectionSigner.publicKey);
+        console.log("Transaction #: ", transaction);
         return collectionSigner.publicKey;
     } catch (error) {
         console.error("Error creating collection:", error);
@@ -172,8 +173,8 @@ export const getCoreNftsClient = async (walletAddress) => {
         // console.log('Fetched assets:', assetsByOwner);
     
         // Remove unnecessary fields (rentEpoch, lamports, pluginHeader, immutableMetadata)
-        const sanitizedAssets = fetchedAssets.map(({ header, pluginHeader, immutableMetadata, ...asset }) => {
-          const { rentEpoch, lamports, ...sanitizedHeader } = header; // Remove rentEpoch and lamports
+        const sanitizedAssets = fetchedAssets.map(({ header, ...asset }) => {
+          const { ...sanitizedHeader } = header; // Remove rentEpoch and lamports
           return {
             ...asset,
             header: sanitizedHeader, // Include sanitized header without rentEpoch and lamports
@@ -186,13 +187,6 @@ export const getCoreNftsClient = async (walletAddress) => {
     
       } catch (error) {
         console.error('Error fetching assets:', error);
-    
-        // Return an error response
-        res.status(500).json({
-          success: false,
-          message: 'Failed to fetch assets',
-          error: error.message || 'An unexpected error occurred',
-        });
       }
 }
 
@@ -220,3 +214,49 @@ export const checkTransactionStatus = async (signature) => {
       return false;
     }
   };
+
+  /**
+ * Vote for an NFT concept.
+ * @param {string} walletAddress - The voter's wallet address.
+ * @returns {Promise<object>} Resolves with list of nft's [name, seed, roll].
+ * @throws {Error} Throws an error if the request fails.
+ */
+export const getCoreNFTs = async (walletPublicKey) => {
+    try {
+        const response = await axios.post(
+            `${URI_SERVER}/api/nft/getCoreNfts/`,
+            {
+                walletPublicKey
+            },
+            { headers: { "x-api-key": API_KEY } }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error("Error while voting:", error.response?.data || error.message);
+        throw new Error(`Failed to vote for NFT: ${error.response?.data?.message || error.message}`);
+    }
+};
+
+  /**
+ * Vote for an NFT concept.
+ * @param {string} walletAddress - The voter's wallet address.
+ * @returns {Promise<object>} Resolves with list of nft's [name, seed, roll].
+ * @throws {Error} Throws an error if the request fails.
+ */
+export const getCoreNFTsDevnet = async (walletPublicKey) => {
+    try {
+        const response = await axios.post(
+            `${URI_SERVER}/api/nft/getCoreNfts/Devnet`,
+            {
+                walletPublicKey
+            },
+            { headers: { "x-api-key": API_KEY } }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error("Error while voting:", error.response?.data || error.message);
+        throw new Error(`Failed to vote for NFT: ${error.response?.data?.message || error.message}`);
+    }
+};

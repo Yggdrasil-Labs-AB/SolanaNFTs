@@ -13,7 +13,7 @@ import { convertUsdToSol } from '../../Utils/pricingModifiers';
 import { uploadMetadata } from '../../services/pinataServices';
 import { uploadIcon } from '../../services/cloudinaryServices';
 import { addNftConcept, checkIfAdmin, deleteNftConcept, saveMetadataUri, updateNftConcept } from '../../services/dbServices';
-import { createSendSolTx, checkTransactionStatus } from '../../services/blockchainServices';
+import { createSendSolTx, checkTransactionStatus, getCoreNFTsDevnet, getCoreNFTs } from '../../services/blockchainServices';
 import { applyAttributes, cleanAttributes, delay, rollSecureRandomInt } from '../../Utils/generalUtils';
 
 //Imported packages
@@ -95,13 +95,13 @@ const Homepage = () => {
     //THIS EFFECT IS FOR TESTING APIS
     useEffect(() => {
 
-        // const asyncCall = async () => {
+        const asyncCall = async () => {
 
-        //     const data = await GetMinimumVersion();
-        //     console.log(data);
-        // }
+            const data = await getCoreNFTs(wallet.publicKey?.toBase58());
+            console.log(data);
+        }
 
-        // asyncCall();
+        asyncCall();
     }, [wallet])
 
     //This combines Store & Metadata for any NEW adds to the Database

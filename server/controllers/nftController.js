@@ -328,7 +328,11 @@ exports.createAndSendNFT = async (req, res) => {
 };
 
 exports.getCoreNFTs = async (req, res) => {
-  console.log(req.body.walletPublicKey);
+
+  const { walletPublicKey } = req.body
+
+  if (!walletPublicKey)
+    return res.status(404).json({ error: "Wallet Address not found." });
 
   try {
     // Extract wallet public key from the request
@@ -360,10 +364,13 @@ exports.getCoreNFTs = async (req, res) => {
           const rollQualityAttr = attributes.find(attr => attr.trait_type === 'rollQuality');
           const statsSeedRollAttr = attributes.find(attr => attr.trait_type === 'statsSeedRoll');
 
+          const statsSeedRoll = parseInt(statsSeedRollAttr?.value, 10);
+          const rollQuality = parseInt(rollQualityAttr?.value, 10);
+
           return {
             name: asset.name,
-            statsSeedRoll: statsSeedRollAttr?.value ?? null,
-            rollQuality: rollQualityAttr?.value ?? null,
+            statsSeedRoll: Number.isNaN(statsSeedRoll) ? null : statsSeedRoll,
+            rollQuality: Number.isNaN(rollQuality) ? null : rollQuality,
             mint: asset.publicKey,
           };
         } catch (err) {
@@ -400,7 +407,10 @@ exports.getCoreNFTs = async (req, res) => {
 exports.getCoreNFTsDevNet = async (req, res) => {
   const devNetUmi = initializeDevUmi();
 
-  console.log(req.body.walletPublicKey);
+  const { walletPublicKey } = req.body
+
+  if (!walletPublicKey)
+    return res.status(404).json({ error: "Wallet Address not found." });
 
   try {
     // Extract wallet public key from the request
@@ -433,10 +443,13 @@ exports.getCoreNFTsDevNet = async (req, res) => {
           const rollQualityAttr = attributes.find(attr => attr.trait_type === 'rollQuality');
           const statsSeedRollAttr = attributes.find(attr => attr.trait_type === 'statsSeedRoll');
 
+          const statsSeedRoll = parseInt(statsSeedRollAttr?.value, 10);
+          const rollQuality = parseInt(rollQualityAttr?.value, 10);
+
           return {
             name: asset.name,
-            statsSeedRoll: statsSeedRollAttr?.value ?? null,
-            rollQuality: rollQualityAttr?.value ?? null,
+            statsSeedRoll: Number.isNaN(statsSeedRoll) ? null : statsSeedRoll,
+            rollQuality: Number.isNaN(rollQuality) ? null : rollQuality,
             mint: asset.publicKey,
           };
         } catch (err) {
