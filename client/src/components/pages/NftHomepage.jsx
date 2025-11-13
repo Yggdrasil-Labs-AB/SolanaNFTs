@@ -9,7 +9,7 @@ import Navbar from '../Navbar/Navbar';
 
 //Utility functions
 import { convertUsdToSol } from '../../Utils/pricingModifiers';
-import { uploadMetadata } from '../../services/pinataServices';
+import { uploadIconIPFS, uploadMetadata, uploadModelIPFS } from '../../services/pinataServices';
 import { uploadIcon } from '../../services/cloudinaryServices';
 import { addNftConcept, deleteNftConcept, saveMetadataUri, updateNftConcept } from '../../services/dbServices';
 import { createSendSolTx, getCoreNFTs } from '../../services/blockchainServices';
@@ -32,14 +32,14 @@ import { useNftConceptForm } from '../../hooks/useNftConceptForm';
 import { fetchRollQualityData } from '../../services/gameServices';
 import NftSideNav from '../SideNav/nftSideNav';
 
-const Homepage = () => {
+const NftHomepage = () => {
 
     //Wallet connection
     // const wallet = useWallet();
 
-    const {wallet, userRole} = useWalletAdmin();
+    const { wallet, userRole } = useWalletAdmin();
     const { connection } = useConnection();
-    const {refetchNftConcepts} = useGlobalVariables();
+    const { refetchNftConcepts } = useGlobalVariables();
 
     const {
         setTxState,
@@ -72,16 +72,20 @@ const Homepage = () => {
         storeInfo,
         setStoreInfo,
         image,
-        setImage,
         newMetadata,
         setNewMetadata,
         resetNftConceptForm,
         handleInfoChange,
         handleStoreChange,
         handleImageChange,
+        handleModelUpload,
         handleAttributeChange,
         isNameTaken,
-        resetDivisionOnTypeChange
+        resetDivisionOnTypeChange,
+        imageName,
+        modelName,
+        modelPreviewUrl,
+        modelFile
     } = useNftConceptForm();
 
     useEffect(() => {
@@ -105,8 +109,10 @@ const Homepage = () => {
     //This combines Store & Metadata for any NEW adds to the Database
     const combineNewMetadataJSON = async () => {
         // Upload the image
-        const iconResp = await uploadIcon(image);
-        const imageURL = iconResp.secure_url;
+        const { ipfsUri } = await uploadIconIPFS(image, imageName);
+        const imageURL = ipfsUri;
+
+        const { modelIpfsUri } = await uploadModelIPFS(modelFile, modelName);
 
         console.log("Upload complete: ", imageURL);
 
@@ -116,60 +122,34 @@ const Homepage = () => {
         //Use Immediate value
         const hardInfo = {
             ...info,
-            image: imageURL
+            image: imageURL,
+            animation_url: modelIpfsUri
         }
 
         //Set properties image to proper URL
         setProperties({
             files: [
-                {
-                    uri: imageURL,
-                    type: "image/png"
-                }
+                { uri: ipfsUri, type: "image/png" },
+                { uri: modelIpfsUri, type: "model/gltf-binary" } // .glb MIME
             ],
-            category: "image"
+            category: "vr"
         });
 
         //Use immediate value
         const hardProperties = {
             files: [
-                {
-                    uri: imageURL,
-                    type: "image/png"
-                }
+                { uri: ipfsUri, type: "image/png" },
+                { uri: modelIpfsUri, type: "model/gltf-binary" } // .glb MIME
             ],
-            category: "image"
+            category: "vr"
         }
 
-        //Get Random Int
-        const seedNumber = rollSecureRandomInt();
-        console.log(seedNumber);
-
-        // Create the updated object locally
-        const updatedStoreInfo = {
-        ...storeInfo,
-        statsRollSeed: seedNumber
-        };
-
-        setStoreInfo(updatedStoreInfo);
-
-        const rarityAttribute = attributes.find(type => type.trait_type === "rarity");
-
-        //Get roll quality data
-        const rolledAttributes = await fetchRollQualityData(seedNumber, storeInfo.rollQuality, rarityAttribute?.value);
-        console.log(rolledAttributes);
-        
-        //Update Attributes
-        const appliedAttributes = applyAttributes(attributes, rolledAttributes, seedNumber, storeInfo.rollQuality);
-
-        setAttributes(appliedAttributes);
-         
         //Combine Metadata
         const metadataCombined = {
             ...hardInfo,
-            attributes: appliedAttributes,
+            attributes,
             properties: hardProperties,
-            storeInfo: updatedStoreInfo,
+            storeInfo
         }
 
         return metadataCombined;
@@ -195,7 +175,7 @@ const Homepage = () => {
 
         const metadataCombined = {
             ...info,
-            cleanedAttributes,
+            attributes: cleanedAttributes,
             properties,
         }
 
@@ -249,9 +229,9 @@ const Homepage = () => {
 
     const handleAddNftConcept = async () => {
         if (page !== 'create') return; // Ensure this function only runs for 'create' action
-    
+
         setTxState('started');
-    
+
         try {
             // 🔹 Step 1: Handle Creator Payment
             const success = await creatorPayment();
@@ -259,17 +239,17 @@ const Homepage = () => {
                 setTxState('failed');
                 return false;
             }
-    
+
             setTxState('complete');
-            
+
         } catch (error) {
             console.error("❌ Error in creator payment:", error.response?.data || error.message);
             setTxState('failed');
             return false;
         }
-    
+
         try {
-            
+
             setCreateState('started');
 
             // Step 2: Prepare Metadata
@@ -278,14 +258,15 @@ const Homepage = () => {
             console.log(metadataForDB);
 
             // Step 3: Submit to Database
+            // eslint-disable-next-line no-unreachable
             const data = await addNftConcept(metadataForDB);
             if (!data) {
                 throw new Error("Failed to save NFT metadata to the database.");
             }
-    
+
             setNewMetadata(data);
             console.log("✅ NFT Metadata created successfully:", data);
-    
+
             // Step 4: Refresh UI
             refetchNftConcepts(); //Get New NFT Concepts from Database
 
@@ -294,7 +275,7 @@ const Homepage = () => {
             resetNftConceptForm(); //Reset the Sidenav form
 
             return true;
-            
+
         } catch (error) {
             console.error("❌ Error in adding NFT to database:", error.response?.data || error.message);
             setCreateState('failed');
@@ -305,7 +286,7 @@ const Homepage = () => {
     const handleUpdateNftConcept = async () => {
         try {
             if (page === 'update') {
-                
+
                 //Combine Metadata
                 const updateDataForDB = await combineUpdateMetadataJSON();
 
@@ -318,7 +299,7 @@ const Homepage = () => {
 
                 return true;
             }
-        } catch(error){
+        } catch (error) {
             console.error('Error updatingNft Data:', error.response?.data || error.message);
         }
     }
@@ -326,41 +307,43 @@ const Homepage = () => {
     const createOffchainMetadata = async () => {
         try {
             setTxState('started');
-    
+
             // 🔹 Step 1: Combine metadata for upload
             const metadataForJSONUpload = await combineOffchainMetatdata();
-    
+
+            console.log(metadataForJSONUpload);
+
             // 🔹 Step 2: Upload metadata and get the URI
-            const metadataUri = await uploadMetadata(metadataForJSONUpload);
+            const metadataUri = await uploadMetadata(metadataForJSONUpload, metadataForJSONUpload.name);
             if (!metadataUri) {
                 setTxState('failed')
                 throw new Error("Metadata upload failed: No URI returned.");
             }
-    
+
             setTxState('complete'); // ✅ Confirm upload success before marking complete
-    
+
             // 🔹 Step 3: Determine Object ID
             const objectId = page === 'create' ? newMetadata?._id : info?._id;
             if (!objectId) {
                 setTxState('failed');
                 throw new Error("Missing Object ID: Cannot save metadata.");
             }
-    
+
             setCreateState('started');
-    
+
             // 🔹 Step 4: Save metadata URI to the database
             const data = await saveMetadataUri(objectId, metadataUri);
             if (!data) {
                 throw new Error("Failed to update metadata URI.");
             }
-    
+
             // 🔹 Step 5: Handle success
             console.log("Update Successful:", data);
             setCreateState('complete');
             setTransactionSig(metadataUri);
             resetNftConceptForm(); // ✅ Reset metadata only if successful
             refetchNftConcepts();
-    
+
         } catch (error) {
             console.error("Error in createOffchainMetadata:", error);
             setTxState("failed");
@@ -382,7 +365,7 @@ const Homepage = () => {
 
             refetchNftConcepts();
             resetNftConceptForm();
-        
+
         } catch (error) {
             console.error('Error updating data', error.response?.data || error.message);
             setTxState('failed');
@@ -403,7 +386,6 @@ const Homepage = () => {
                         handleInfoChange={handleInfoChange}
                         handleStoreChange={handleStoreChange}
                         handleAttributeChange={handleAttributeChange}
-                        handleImageChange={handleImageChange}
                         page={page}
                         setPage={setPage}
                         createOffchainMetadata={createOffchainMetadata}
@@ -417,15 +399,20 @@ const Homepage = () => {
                         setCreateLockStatus={setCreateLockStatus}
                         handleUpdateNftConcept={handleUpdateNftConcept}
                         isNameTaken={isNameTaken}
-                        resetDivisionOnTypeChange={resetDivisionOnTypeChange}  />
+                        resetDivisionOnTypeChange={resetDivisionOnTypeChange}
+                        imageName={imageName}
+                        modelName={modelName}
+                    />
                     {page === "create" &&
                         <NFTPreview
                             info={info}
                             attributes={attributes}
                             storeInfo={storeInfo}
                             image={image}
+                            modelPreviewUrl={modelPreviewUrl}
                             handleImageChange={handleImageChange}
-                            handleAddNftConcept={handleAddNftConcept} />}
+                            handleAddNftConcept={handleAddNftConcept}
+                            handleModelUpload={handleModelUpload} />}
                     {page === "update" &&
                         <NFTUpdate
                             setInfo={setInfo}
@@ -442,4 +429,4 @@ const Homepage = () => {
     );
 };
 
-export default Homepage;
+export default NftHomepage;

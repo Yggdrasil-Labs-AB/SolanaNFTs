@@ -11,6 +11,7 @@ import { useTransactionsController } from '../../providers/TransactionsProvider'
 import TxModalManager from '../txModal/TxModalManager';
 
 import { getTraitRowsFromAttributes } from '../../Utils/renderNftHelper';
+import GlbTest from '../pages/GlbTester';
 
 const NFTPreview = ({
     info,
@@ -18,7 +19,9 @@ const NFTPreview = ({
     storeInfo,
     image,
     handleImageChange,
-    handleAddNftConcept
+    handleAddNftConcept,
+    handleModelUpload,
+    modelPreviewUrl
 }) => {
 
     const {
@@ -92,10 +95,12 @@ const NFTPreview = ({
                         <div className={bannerClass}>Lvl. {level}</div>
                     </div>
                 </button>
+                <GlbTest modelPreviewUrl={modelPreviewUrl}/>
             </div>
             {isModalOpen && <TxModalManager
                 handleImageChange={handleImageChange}
-                handleAddNftConcept={handleAddNftConcept} />}
+                handleAddNftConcept={handleAddNftConcept}
+                handleModelUpload={handleModelUpload} />}
             <MobileDetailsButton />
         </div>
     );

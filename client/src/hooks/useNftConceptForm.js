@@ -5,15 +5,13 @@ import {
     getAttributesData,
     storeInfoData,
     propertiesData,
-} from '../config/gameConfig';
+} from '../config/nftConfig';
 
-import { useTransactionsController } from '../providers/TransactionsProvider';
 import { useGlobalVariables } from '../providers/GlobalVariablesProvider';
 
 export const useNftConceptForm = () => {
 
     const { nftConcepts } = useGlobalVariables();
-    const { setImageName } = useTransactionsController();
 
     //States that make up Meta data information
     const [info, setInfo] = useState(infoData);
@@ -32,6 +30,13 @@ export const useNftConceptForm = () => {
     const [newMetadata, setNewMetadata] = useState(null);
 
     const [isNameTaken, setIsNameTaken] = useState(null);
+
+    // in your component
+    const [modelFile, setModelFile] = useState(null);
+    const [modelName, setModelName] = useState("");
+    const [modelPreviewUrl, setModelPreviewUrl] = useState(""); // optional
+
+    const [imageName, setImageName] = useState(null);
 
     //Function that resets local metadata when needed
     const resetNftConceptForm = () => {
@@ -80,6 +85,8 @@ export const useNftConceptForm = () => {
                     setImageName(file.name);
                 }
 
+                console.log(file.name);
+
                 URL.revokeObjectURL(fileURL); // Clean up the temporary URL
             };
 
@@ -92,6 +99,27 @@ export const useNftConceptForm = () => {
         }
     };
 
+    const handleModelUpload = (e) => {
+        const file = e.target.files?.[0] || null;
+        if (!file) return;
+
+        // basic guard: must be .glb
+        const isGlb = file.name.toLowerCase().endsWith(".glb") || file.type === "model/gltf-binary";
+        if (!isGlb) {
+            // reset if wrong type (optional)
+            e.target.value = "";
+            return;
+        }
+
+        console.log(file.name);
+        setModelFile(file);
+        setModelName(file.name);
+
+        // optional: make a temporary URL to preview or show size
+        const url = URL.createObjectURL(file);
+        setModelPreviewUrl(url);
+    };
+
     // Handle input change
     const handleAttributeChange = (index, field, newValue) => {
         const updatedAttributes = attributes.map((attr, i) =>
@@ -102,7 +130,7 @@ export const useNftConceptForm = () => {
 
     const handleCheckName = (value) => {
         const foundNft = nftConcepts.find(nft => nft.name === value);
-    
+
         setIsNameTaken(!!foundNft); // Convert to boolean
     };
 
@@ -127,6 +155,7 @@ export const useNftConceptForm = () => {
         setStoreInfo,
         image,
         setImage,
+        imageName,
         newMetadata,
         setNewMetadata,
         resetNftConceptForm,
@@ -135,6 +164,10 @@ export const useNftConceptForm = () => {
         handleImageChange,
         handleAttributeChange,
         isNameTaken,
-        resetDivisionOnTypeChange
+        resetDivisionOnTypeChange,
+        handleModelUpload,
+        modelName,
+        modelPreviewUrl,
+        modelFile
     }
 }

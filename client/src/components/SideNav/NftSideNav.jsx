@@ -2,19 +2,18 @@ import { useState, useEffect } from 'react';
 
 import {
     generalTypes,
-    affinityOptions,
-    armorOptions,
-    weaponOptions,
     skinOptions,
-    accessoriesOptions,
     rarityOptions,
+    pricingValues,
     divisionOptions,
-    combinedTraits
-} from '../../config/gameConfig';
+    getAttributesData,
+} from '../../config/nftConfig';
 
 import { useScreen } from "../../providers/ScreenProvider";
 
 import { RxDoubleArrowRight } from "react-icons/rx";
+
+import { creatorCosts } from '../../config/nftConfig';
 
 import { useTransactionsController } from '../../providers/TransactionsProvider';
 
@@ -24,8 +23,9 @@ import SolConnection from '../Connection/SolConnection';
 import { convertUsdToSol } from '../../Utils/pricingModifiers';
 
 import { capitalizeFirstLetter } from '../../Utils/generalUtils';
+import { useNftConceptForm } from '../../hooks/useNftConceptForm';
 
-const SideNav = ({
+const NftSideNav = ({
     info,
     attributes,
     storeInfo,
@@ -44,13 +44,14 @@ const SideNav = ({
     setCreateLockStatus,
     handleUpdateNftConcept,
     isNameTaken,
-    resetDivisionOnTypeChange
+    resetDivisionOnTypeChange,
+    imageName,
+    modelName
 }) => {
 
     const {
         setIsModalOpen,
         setModalType,
-        imageName,
         loadTxModal
     } = useTransactionsController()
 
@@ -63,6 +64,24 @@ const SideNav = ({
 
     const [isCreating, setIsCreating] = useState(false); // Indicates if a creation process is ongoing
     const [isCreated, setIsCreated] = useState(false); // Indicates if the metadata has been successfully created
+
+    // Function to update pricing in the storeInfo state
+    const updatePricing = (value) => {
+        setStoreInfo((prev) => ({
+            ...prev,
+            price: value,
+        }));
+    };
+
+    // Extract the current rarity value from attributes
+    const rarity = attributes.find((attr) => attr.trait_type === "rarity")?.value;
+
+    // useEffect to update pricing and max talent points when rarity changes
+    useEffect(() => {
+        if (rarity && pricingValues[rarity]) {
+            updatePricing(pricingValues[rarity]); // Update pricing based on rarity
+        }
+    }, [rarity]); // Trigger this effect whenever rarity changes
 
     // Determine the page title dynamically
     const title = page === 'create' ? 'Concept Creator' : 'Concept Editor';
@@ -85,7 +104,7 @@ const SideNav = ({
         (isAdmin) || (userRole === "member" && isCreator && !isMetadataLocked)
 
     // List of attributes to track for talents
-    const attributesToTrack = combinedTraits;
+    const attributesToTrack = getAttributesData();
 
     // Handle input changes for attributes
     const handleAttributeInputChange = (index, traitType, inputValue) => {
@@ -112,10 +131,8 @@ const SideNav = ({
 
     const printStoreInfoTitles = (title) => {
         switch (title) {
-            case "goldCost":
-                return "Gold Cost";
-            case "babyBoohCost":
-                return "babyBooh Cost"
+            case "glbUri":
+                return "";
             default:
                 return capitalizeFirstLetter(title);
         }
@@ -175,6 +192,12 @@ const SideNav = ({
                         // eslint-disable-next-line no-undef
                         throw new error('Name is already taken');
                     }
+
+                    const creatorPayment = isAdmin
+                        ? 0
+                        : await convertUsdToSol(creatorCosts[attributes.find(attr => attr.trait_type === "rarity")?.value]);
+
+                    loadTxModal('create', info.name, creatorPayment, 'SOL', true);
                 }
 
                 if (page === 'update') {
@@ -195,7 +218,7 @@ const SideNav = ({
                     <h4 className="marykate" style={{ fontSize: '2rem' }}>Store Info</h4>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                         {Object.entries(storeInfo)
-                            .filter(([key]) => key !== 'metadataUri')
+                            .filter(([key]) => key !== 'metadataUri' && key !== 'glbUri')
                             .map(([key, value], index) => (
                                 <div key={index} style={{ flex: '1 1 48%' }}>
                                     <label className="form-label" style={{ display: 'block', marginBottom: '5px' }}>
@@ -243,26 +266,7 @@ const SideNav = ({
                                             <option value="500">500</option>
                                             <option value="1000">1000</option>
                                         </select>
-                                    ) : key === 'goldCost' || key === 'babyBoohCost' ? (
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            value={value === undefined || value === null ? '' : value}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-                                                // If user clears the input, store empty string temporarily
-                                                handleStoreChange(key, val === '' ? '' : Number(val));
-                                            }}
-                                            onBlur={(e) => {
-                                                // If left empty on blur, reset to 0
-                                                if (e.target.value === '') {
-                                                    handleStoreChange(key, 0);
-                                                }
-                                            }}
-                                            disabled={!isAdmin}
-                                            style={inputStyle}
-                                        />
-                                    ) : key === "statsRollSeed" ? (
+                                    ) : key === "glbUri" ? (
                                         // Print Nothing
                                         <></>
                                     ) : (
@@ -355,6 +359,22 @@ const SideNav = ({
                     </div>
                 </div>}
 
+                {/* Model Upload */}
+                {page === 'create' && <div>
+                    <label htmlFor="image" style={{ display: 'block', marginBottom: '5px' }}>Upload Model:</label>
+                    <div className="d-flex align-items-center gap-2"
+                        style={{ width: '100%', backgroundColor: '#2E2E2E', padding: '10px', border: '1px solid gray', opacity: !canEditFields ? '0.5' : '1' }}>
+                        <button
+                            type="button"
+                            className='button-style-regular'
+                            disabled={!canEditFields} //disabled
+                            onClick={() => { setIsModalOpen(true); setModalType('model') }}>
+                            Select Model
+                        </button>
+                        {modelName ? (<>{modelName}</>) : (<>No model selected</>)}
+                    </div>
+                </div>}
+
                 {/* Attributes -  #Non Talents */}
                 <div>
                     <h4 className="marykate" style={{ fontSize: "2rem" }}>Attributes</h4>
@@ -368,25 +388,7 @@ const SideNav = ({
                                 </label>
                             )}
 
-                            {attribute.trait_type === "blockchain" ? (
-                                <select
-                                    value={attribute.value}
-                                    onChange={(e) => handleAttributeChange(index, "value", e.target.value)}
-                                    disabled={!isAdmin || storeInfo.metadataUri}
-                                    style={{
-                                        width: "100%",
-                                        padding: "10px",
-                                        borderRadius: "4px",
-                                        border: "1px solid #555",
-                                        backgroundColor: "#2E2E2E",
-                                        color: "#FFF",
-                                    }}
-                                >
-                                    <option value="">Select...</option>
-                                    <option value="solana">Solana</option>
-                                    <option value="ethereum">Ethereum</option>
-                                </select>
-                            ) : attribute.trait_type === "type" ? (
+                            {attribute.trait_type === "type" ? (
                                 <select
                                     value={attribute.value}
                                     onChange={(e) => { handleAttributeChange(index, "value", e.target.value), resetDivisionOnTypeChange() }}
@@ -428,24 +430,6 @@ const SideNav = ({
                                             return skinOptions.map((skin, i) => (
                                                 <option key={i} value={skin}>
                                                     {skin.charAt(0).toUpperCase() + skin.slice(1)}
-                                                </option>
-                                            ));
-                                        } else if (type === "weapon") {
-                                            return weaponOptions.map((weapon, i) => (
-                                                <option key={i} value={weapon}>
-                                                    {weapon.charAt(0).toUpperCase() + weapon.slice(1)}
-                                                </option>
-                                            ));
-                                        } else if (type === "armor") {
-                                            return armorOptions.map((armor, i) => (
-                                                <option key={i} value={armor}>
-                                                    {armor.charAt(0).toUpperCase() + armor.slice(1)}
-                                                </option>
-                                            ));
-                                        } else if (type === "accessory") {
-                                            return accessoriesOptions.map((accessory, i) => (
-                                                <option key={i} value={accessory}>
-                                                    {accessory.charAt(0).toUpperCase() + accessory.slice(1)}
                                                 </option>
                                             ));
                                         } else {
@@ -498,11 +482,26 @@ const SideNav = ({
                                             </option>
                                         ))}
                                     </select>
+                                    {page === 'create' &&
+                                        <div className="d-flex justify-content-end marykate" style={{ paddingRight: '10px', fontSize: '1rem' }}>
+                                            Creator Costs: ${creatorCosts[attributes.find(attr => attr.trait_type === "rarity").value]}
+                                        </div>
+                                    }
                                 </>
-                            ) : attribute.trait_type === "affinity" ? (
-                                <select
-                                    value={attribute.value}
-                                    onChange={(e) => handleAttributeChange(index, "value", e.target.value)}
+                            ) : (
+                                <input
+                                    type="number"
+                                    value={attribute.value ?? ""}
+                                    placeholder="Enter strength"
+                                    onChange={(e) =>
+                                        handleAttributeChange(
+                                            index,
+                                            "value",
+                                            e.target.value === "" ? "" : Number(e.target.value)
+                                        )
+                                    }
+                                    min={0}
+                                    step={1}
                                     disabled={!canEditFields}
                                     style={{
                                         width: "100%",
@@ -512,25 +511,14 @@ const SideNav = ({
                                         backgroundColor: "#2E2E2E",
                                         color: "#FFF",
                                     }}
-                                >
-                                    <option value="" disabled>
-                                        Select...
-                                    </option>
-                                    {affinityOptions.map((affinity, i) => (
-                                        <option key={i} value={affinity}>
-                                            {affinity.charAt(0).toUpperCase() + affinity.slice(1)}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <></>
+                                />
                             )}
                         </div>
                     ))}
                 </div>
 
                 {/* Attributes -  #Talents */}
-                <div>
+                {/* <div>
                     <h4 className="marykate" style={{ fontSize: "2rem" }}>Attributes</h4>
                     {attributes.map((attribute, index) => {
                         if (!attributesToTrack.includes(attribute.trait_type)) return null; // ❌ Skip non-tracked attributes
@@ -566,7 +554,7 @@ const SideNav = ({
                             </div>
                         );
                     })}
-                </div>
+                </div> */}
 
 
                 {/* Submit Button */}
@@ -647,7 +635,7 @@ const SideNav = ({
     );
 };
 
-export default SideNav;
+export default NftSideNav;
 
 const inputStyle = {
     width: '100%',

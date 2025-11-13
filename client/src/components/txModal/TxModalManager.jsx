@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useTransactionsController } from '../../providers/TransactionsProvider';
 
 import TxModalWrapper from './TxModalWrapper';
@@ -14,13 +12,16 @@ import TxModalDisconnect from './ModalTypes/TxModalDisconnect';
 import TxModalCreator from './ModalTypes/TxModalCreator';
 import TxModalAppRedirect from './ModalTypes/TxModalAppRedirect';
 import TxModalTokenSync from './ModalTypes/TxModalTokenSync';
+import TxModalUploadModel from './ModalTypes/TxModalUploadModel';
 
 const TxModalManager = ({  
     createNft, 
     createOffchainMetadata, 
     handleDeleteNftConcept, 
+    handleAddNftConcept,
     handleImageChange,
-    handleAddNftConcept }) => {
+    handleModelUpload
+    }) => {
     
     const {
         modalType
@@ -38,7 +39,9 @@ const TxModalManager = ({
             case "lock":
                 return <TxModalLockData createOffchainMetadata={createOffchainMetadata} />;
             case "image":
-                return <TxModalUploadImage handleImageChange={handleImageChange} />
+                return <TxModalUploadImage handleImageChange={handleImageChange}/>
+            case "model":
+                return <TxModalUploadModel handleModelUpload={handleModelUpload}/>
             case "disconnect":
                 return <TxModalDisconnect />
             case 'appRedirect':

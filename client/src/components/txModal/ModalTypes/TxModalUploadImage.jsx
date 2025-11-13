@@ -1,10 +1,7 @@
-import React, { useState } from "react";
 import { useTransactionsController } from "../../../providers/TransactionsProvider";
 import TxModalHeader from "../components/TxModalHeader";
-import { renderTxStateIcon } from "../renderStatus";
 
-const TxModalUploadImage = ({ handleImageChange }) => {
-
+const TxModalUploadImage = ({handleImageChange}) => {
 
     const {
         setIsModalOpen,

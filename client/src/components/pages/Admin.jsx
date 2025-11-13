@@ -10,9 +10,9 @@ import { useTransactionsController } from "../../providers/TransactionsProvider"
 import { useWalletAdmin } from "../../hooks/useWalletAdmin";
 import { deleteAttribute, patchAttributes, replaceAttribute, rollAllServerItems, submitWhitelistAddress, updateBlueprintMetadata, updateRarityOnAllNfts } from "../../services/dbServices";
 
-import { pricingValues } from "../../config/gameConfig";
+import { pricingValues } from "../../config/nftConfig";
 
-import { combinedTraits } from "../../config/gameConfig";
+import { getAttributesData } from "../../config/nftConfig";
 
 const Admin = () => {
     const { userRole, wallet } = useWalletAdmin();
@@ -55,7 +55,7 @@ const Admin = () => {
         try {
             for (const email of EmailList) {
                 console.log(email);
-                const resp = await submitWhitelistAddress("none", email, "none");
+                const resp = await submitWhitelistAddress(email, email, email);
                 console.log(resp);
             }
         } catch (e) {

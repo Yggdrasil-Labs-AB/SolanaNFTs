@@ -44,9 +44,6 @@ export const TransactionProvider = ({ children }) => {
     //RENDER INFO CONTROLLER
     const [nameTracker, setNameTracker] = useState('');
 
-    //TRACK UPLOADED IMAGES NAME
-    const [imageName, setImageName] = useState('');
-
     //MANAGES PAGE SWITCH BETWEEN CREATE & EDIT
     const [page, setPage] = useState(null);
 
@@ -161,8 +158,6 @@ export const TransactionProvider = ({ children }) => {
                 isLockModalOpen,
                 setIsLockModalOpen,
                 resetTxModal,
-                imageName,
-                setImageName,
                 page,
                 setPage,
                 loadTxModal,

@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 
 import {
     rarityOptions,
-    talenPointSpread,
     pricingValues,
     creatorCosts,
     sellingThreshold
-} from "../../config/gameConfig";
+} from "../../config/nftConfig";
 
 const NftCostTable = () => {
 
@@ -45,7 +44,6 @@ const NftCostTable = () => {
                                     <td>{rarity.charAt(0).toUpperCase() + rarity.slice(1)}</td>
                                     <td>${pricingValues[rarity].toFixed(2)}</td>
                                     <td>${creatorCosts[rarity].toFixed(2)}</td>
-                                    <td>{talenPointSpread[rarity]}</td>
                                     <td>{sellingThreshold[rarity]}</td>
                                     <td>10%</td>
                                 </tr>

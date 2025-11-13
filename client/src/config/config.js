@@ -1,5 +1,5 @@
-export const IS_MAINNET = import.meta.env.MODE === 'production';
-export const IS_PRODUCTION = import.meta.env.MODE === 'production';
+export const IS_MAINNET = import.meta.env.MODE === 'production'; //This handles BLOCKCHAIN
+export const IS_PRODUCTION = import.meta.env.MODE === 'production'; //This handles the SERVER
 
 const DEVNET_COLLECTION_ADDRESS = 'AQWGjfgwj8fuQsQFrfN58JzVxWG6dAosU33e35amUcPo';
 const MAINNET_COLLECTION_ADDRESS = 'Esr1cTMpbNRNVHvMrGWMMpCEosH2L1dJU3pXyWmLNZoW';

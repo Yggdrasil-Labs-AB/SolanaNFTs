@@ -104,13 +104,14 @@ const Navbar = () => {
                             onMouseLeave={() => setIsHubDropdownOpen(false)}
                         >
                             <Link to="#" className="dropdown-trigger">
-                                Creator Hub
+                                In-Game Items
                             </Link>
 
                             {/* Keep menu in the DOM, just toggle the 'open' class */}
                             <div className={`dropdown-menu ${isHubDropdownOpen ? "open" : ""}`}>
-                                <button onClick={() => handlePageChange("create")}>Create Concept</button>
-                                <button onClick={() => handlePageChange("update")}>Edit Concept</button>
+                                <button onClick={() => handlePageChange("create")}>Create Item</button>
+                                <button onClick={() => handlePageChange("update")}>Create Nft</button>
+                                <button onClick={() => handlePageChange("update")}>Edit Items</button>
                                 <Link to="/character-submit">Subm. Character</Link>
                             </div>
                         </div>

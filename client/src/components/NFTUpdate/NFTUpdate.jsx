@@ -71,8 +71,9 @@ const NFTUpdate = ({ setInfo, setAttributes, setProperties, setStoreInfo, userRo
         const infoToUpdate = {
             name: nft.name,
             description: nft.description,
-            external_link: nft.external_link,
+            external_url: nft.external_url,
             image: nft.image,
+            animation_url: nft.animation_url,
             symbol: nft.symbol,
             _id: nft._id,
             _v: nft._v
