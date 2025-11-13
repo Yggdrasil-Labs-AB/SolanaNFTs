@@ -1,0 +1,137 @@
+.ingame-items-shell {
+    margin-top: 60px;
+    padding: 16px 24px 24px;
+    color: #f9fafb;
+}
+
+.ingame-items-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 5px;
+}
+
+.ingame-items-mode-toggle .mode-pill {
+    padding: 4px 14px;
+    border-radius: 999px;
+    border: 1px solid #4b4f5f;
+    background: transparent;
+    color: #e5e7eb;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+}
+
+.mode-pill.active {
+    background: #10b981;
+    border-color: #10b981;
+    color: #020617;
+}
+
+.ingame-items-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 1.2fr);
+    gap: 16px;
+}
+
+.panel {
+    background: #111317;
+    border-radius: 14px;
+    border: 1px solid #23252f;
+    padding: 12px 14px 14px;
+}
+
+.panel-full {
+    grid-column: 1 / -1;
+}
+
+.panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.panel-subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.field-row {
+    display: flex;
+    gap: 8px;
+}
+
+.field-label {
+    margin-bottom: 2px;
+    opacity: 0.8;
+}
+
+.field input,
+.field select,
+.field textarea {
+    background: #020617;
+    border-radius: 6px;
+    border: 1px solid #374151;
+    padding: 6px 8px;
+    font-size: 13px;
+    color: #f9fafb;
+}
+
+.checkbox-field {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.actions-right {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #10b981;
+    color: #020617;
+}
+
+.btn-secondary {
+    background: #1f2937;
+    color: #e5e7eb;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: #fef2f2;
+}

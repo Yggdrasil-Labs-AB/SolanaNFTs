@@ -1,6 +1,22 @@
 const axios = require('axios');
 const { fetchRollQualityHelper, validateGameIdUtils, DeductInGameBabyBooh } = require('../utils/gameHelpers');
 
+const InGameItem = require('../Models/InGameItem');
+
+exports.addNewInGameItem = async (req, res) => {
+  try {
+    console.log("Insert new Item");
+
+    const data = new InGameItem(req.body);
+    const savedData = await data.save();
+
+    res.status(201).json(savedData);
+  } catch (error) {
+    console.error("Error creating NFT metadata:", error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
 exports.getInGameCurrency = async (req, res) => {
     try {
         // Extract the address from query parameters
@@ -87,8 +103,8 @@ exports.deductInGameCurrency = async (req, res) => {
 
 exports.fetchRollQualityData = async (req, res) => {
     try {
-        const { seedNumber, rollQuality, rarity } = req.body;
-        const result = await fetchRollQualityHelper(seedNumber, rollQuality, rarity);
+        const { seedNumber, rollQuality, rarity, itemType, subItemType } = req.body;
+        const result = await fetchRollQualityHelper(seedNumber, rollQuality, rarity, itemType, subItemType);
         res.status(200).json(result);
     } catch (error) {
         if (error.response) {

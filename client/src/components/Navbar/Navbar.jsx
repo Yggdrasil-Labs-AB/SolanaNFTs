@@ -22,6 +22,7 @@ import '../../css/mobile-Navbar.css'
 import { useTransactionsController } from '../../providers/TransactionsProvider';
 
 import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
+import { useWalletAdmin } from '../../hooks/useWalletAdmin';
 
 const Navbar = () => {
 
@@ -74,6 +75,11 @@ const Navbar = () => {
         }
     };
 
+    const {userRole} = useWalletAdmin();
+
+    const isAdmin = userRole === "admin";
+    console.log(userRole);
+
     return (
         <nav className="store-navbar-main">
             {/*  */}
@@ -120,6 +126,8 @@ const Navbar = () => {
                         {/* <div style={{ borderRight: '2px solid #fff', margin: '10px 0px' }}></div> */}
                         <Link to='https://discord.gg/WkWcNFEA' target='_blank'>Discord</Link>
                         <Link to='/docs'>Docs</Link>
+                        {isAdmin && <Link to='/game'>Game</Link>}
+                        {isAdmin && <Link to='/admin'>Admin</Link>}
                     </div>
                 </div>
 
@@ -198,6 +206,8 @@ const Navbar = () => {
                                     <Link to="https://boohworld.io" target="_blank">Token</Link>
                                     <Link to="https://discord.gg/WkWcNFEA" target="_blank">Discord</Link>
                                     <Link to="/docs">Docs & Rules</Link>
+                                    {isAdmin && <Link to='/game'>Game</Link>}
+                                    {isAdmin && <Link to='/admin'>Admin</Link>}
                                 </div>
                                 <div className="mobile-nav-login">
                                     <div className="d-flex gap-5 justify-content-between align-items-center h-100" style={{ padding: '0px 20px' }}>

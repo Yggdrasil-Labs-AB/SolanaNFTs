@@ -60,7 +60,7 @@ async function getUnityAccessToken() {
   return INFLIGHT;
 }
 
-async function fetchRollQualityHelper(seedNumber, rollQuality, rarity) {
+async function fetchRollQualityHelper(seedNumber, rollQuality, rarity, itemType, subItemType) {
   if (!seedNumber || !rollQuality || !rarity) {
     throw new Error("Missing required parameters");
   }
@@ -69,13 +69,17 @@ async function fetchRollQualityHelper(seedNumber, rollQuality, rarity) {
 
   const buildURL = `https://cloud-code.services.api.unity.com/v1/projects/${process.env.BB_PROJECT_ID}/modules/BoohItemRollQualityModule/RollItemAttributesRemote`;
 
+  console.log(seedNumber, rollQuality, rarity, itemType, subItemType);
+  
   const response = await axios.post(
     buildURL,
     {
       params: {
         statsRollSeed: seedNumber,
         rollQuality,
-        rarityStr: rarity
+        rarityStr: rarity,
+        itemType,
+        itemSubType: subItemType
       }
     },
     {

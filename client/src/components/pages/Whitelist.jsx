@@ -10,8 +10,6 @@ import '../../css/whitelist.css';
 import { getWhitelistAddresses, submitWhitelistAddress } from '../../services/dbServices';
 import TxModal from '../txModal/TxModal';
 
-import { delay } from '../../Utils/generalUtils';
-
 const Whitelist = () => {
 
     const wallet = useWallet();

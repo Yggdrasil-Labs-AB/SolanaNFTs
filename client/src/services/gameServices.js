@@ -66,14 +66,14 @@ export const deductBabyBooh = async (playerId, amount = 5) => {
  * @param {"common" | "uncommon" | "rare" | "epic" | "legendary" | "cursed"} rarity - The rarity level of the item.
  * @returns {Promise<Object>} The fetched roll data.
 **/
-export const fetchRollQualityData = async (seedNumber, rollQuality, rarity) => {
+export const fetchRollQualityData = async (seedNumber, rollQuality, rarity, itemType, subItemType) => {
 
     console.log(`Seed Number: ${seedNumber}, Roll Quality: ${rollQuality}, "rarity: ${rarity}"`);
     try {
         // Make the POST request with address in the body
         const response = await axios.post(
             `${URI_SERVER}/api/boohbrawlers/rollquality`,
-            { seedNumber, rollQuality, rarity }, // Body of the POST request
+            { seedNumber, rollQuality, rarity, itemType, subItemType }, // Body of the POST request
             {
                 headers: {
                     'x-api-key': API_KEY, // Custom header for the API key

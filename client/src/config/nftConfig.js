@@ -44,6 +44,8 @@ export const storeInfoData = {
     mintLimit: ''
 };
 
+export const submissionCost = {}
+
 /**
  * Build final attributes array:
  * - Ensures all nftStatModifiers exist with default "0" (if not present)
@@ -124,6 +126,8 @@ export const pricingValues = {
 };
 
 export const mintCost = 0.004;
+
+export const defaultMintCost = 0.004;
 
 export const rarityOptions = [
     'common',

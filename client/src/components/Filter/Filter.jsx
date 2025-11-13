@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 import { useWallet } from '@solana/wallet-adapter-react';
 
@@ -13,7 +13,6 @@ import {
     affinityOptions,
     armorOptions,
     weaponOptions,
-    skinOptions,
     accessoriesOptions,
     rarityOptions
 } from '../../config/gameConfig';
@@ -72,7 +71,6 @@ const Filter = ({
     const filteredGeneralTypes = [...generalTypes, 'all'];; //Add all for search filters
     const filteredWeaponOptions = [...weaponOptions, 'all'];
     const filteredArmorOptions = [...armorOptions, 'all'];
-    const filteredSkinOptions = [...skinOptions, 'all'];
     const filteredAccessoryOptions = [...accessoriesOptions, 'all'];
     const filteredRarityOptions = [...rarityOptions, 'all'];
 
@@ -87,8 +85,6 @@ const Filter = ({
                 return filteredWeaponOptions;
             case 'armor':
                 return filteredArmorOptions;
-            case 'skin':
-                return filteredSkinOptions;
             case 'accessory':
                 return filteredAccessoryOptions;
             case 'all':

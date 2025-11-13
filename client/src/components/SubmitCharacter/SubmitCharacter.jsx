@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUpload } from "react-icons/fa";
@@ -8,7 +8,7 @@ import { submitCharacter } from "../../services/dbServices";
 
 import { useWalletAdmin } from "../../hooks/useWalletAdmin";
 
-import { submissionCost } from "../../config/gameConfig";
+import { submissionCost } from "../../config/nftConfig";
 
 import { convertUsdToSol } from "../../Utils/pricingModifiers";
 import { createSendSolTx } from "../../services/blockchainServices";

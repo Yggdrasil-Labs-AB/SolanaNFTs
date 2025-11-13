@@ -9,10 +9,14 @@ import CharacterSubmission from './components/pages/CharacterSubmission';
 import Admin from './components/pages/Admin';
 import TokenSync from './components/pages/TokenSync';
 import NftHomepage from './components/pages/NftHomepage';
-import GlbTest from './components/pages/GlbTester';
+import { useWalletAdmin } from './hooks/useWalletAdmin';
+
 
 function App() {
 
+  const {userRole} = useWalletAdmin();
+
+  const isAdmin = userRole === "admin";
 
   return (
         <Router>
@@ -24,10 +28,10 @@ function App() {
             <Route path='/marketplace/:id/:redirectAddress' element={<Marketplace />} />
             <Route path='/docs' element={<CreatorHubDocs />} />
             <Route path='/character-submit' element={<CharacterSubmission />} />
-            <Route path='/admin' element={<Admin />} />
             <Route path='/token-sync' element={<TokenSync />} />
             <Route path='/token-sync/:id' element={<TokenSync />} />
-            <Route path='/glb' element={<GlbTest />} />
+            {isAdmin && <Route path="/game" element={<Homepage />} />}
+            {isAdmin && <Route path='/admin' element={<Admin />} />}
           </Routes>
         </Router>
   )

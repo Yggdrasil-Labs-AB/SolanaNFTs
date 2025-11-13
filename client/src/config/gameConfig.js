@@ -1,10 +1,8 @@
 // General Information Data
 export const infoData = {
     name: '', // Default name for the entity
-    symbol: 'BOOH', // Default symbol
     description: '', // Placeholder for description
     image: '', // Placeholder for the image URL
-    external_link: 'https://nft.boohworld.io/marketplace', // External link for more details
 };
 
 // Talents List
@@ -23,14 +21,6 @@ export const statModifiers = [
     "resilienceModifier",
     "intelligenceModifier",
     "resistanceModifier",
-]
-
-export const nftStatModifiers = [
-    "strength",
-    "vitality",
-    "resilience",
-    "intelligence",
-    "resistance",
 ]
 
 export const combinedTraits = Array.from(new Set([...statModifiers, ...stats]));
@@ -60,17 +50,6 @@ export const getAttributesData = () => {
     return [...attributesData, ...newTalents];
 };
 
-// Properties Data for Metadata
-export const propertiesData = {
-    files: [
-        {
-            uri: null, // Placeholder for the file URI
-            type: "image/png", // Default file type
-        },
-    ],
-    category: "image", // Default category for the file
-};
-
 export const inGameCurrencyCost = {}
 
 const currentSeason = 1; // Current season number
@@ -78,19 +57,18 @@ const startingAvailability = false; // Default availability status
 export const storeInfoData = {
     available: startingAvailability, //Available In-Game
     season: currentSeason, // Season the item belongs to
-    metadataUri: '', // URI for metadata
     goldCost: 0,
     babyBoohCost: 0,
+    boohShardsCost: 0,
     rollQuality: 0,
-    statsRollSeed: 95,
+    statsRollSeed: 100,
 };
 
 // Option Types for Select Inputs
-
 export const generalTypes = [
-    'skin',
     'weapon',
     'armor',
+    'helmet',
     'accessory'
 ]
 
@@ -107,23 +85,18 @@ export const affinityOptions = [
 ];
 
 export const armorOptions = [
-    'chest',
-    'helm',
+    'leather',
+    'chain',
+    'steel'
 ];
+
+export const helmetOptions = [
+    'leather',
+    'chain',
+    'steel'
+]
 
 export const weaponOptions = [
-    'sword',
-    'axe',
-    'dagger',
-    'staff',
-    'bow',
-    'scythe',
-    'twoHandedSword',
-    'spear'
-];
-
-export const skinOptions = [
-    'body',
     'sword',
     'axe',
     'dagger',
@@ -156,11 +129,3 @@ export const divisionOptions = [
     'crebel',
     'elites'
 ]
-
-export const defaultMintCost = .004;
-
-export const submissionCost = 24.99;
-
-export const newStats = {
-    strength: ''
-}

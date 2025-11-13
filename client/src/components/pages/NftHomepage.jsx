@@ -290,6 +290,8 @@ const NftHomepage = () => {
                 //Combine Metadata
                 const updateDataForDB = await combineUpdateMetadataJSON();
 
+                console.log(updateDataForDB);
+
                 //Remove ID from metadata
                 const data = await updateNftConcept(updateDataForDB);
 

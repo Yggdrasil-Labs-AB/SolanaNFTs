@@ -122,11 +122,18 @@ const NftMetadataSchema = new Schema(
 );
 
 /** Custom validator: require at least one of image or animation_url */
-NftMetadataSchema.path('image').validate(function () {
-  if (!this.image && !this.animation_url) {
-    return false;
-  }
-  return true;
+NftMetadataSchema.path('image').validate(function (value) {
+  // `this` is:
+  // - the document on normal .save()
+  // - a Query on findOneAndUpdate with runValidators:true
+
+  // If it's not a new document (or it's a query), skip this check.
+  // On queries, this.isNew is undefined, so !this.isNew === true → skip.
+  if (!this.isNew) return true;
+
+  // On create: require either image or animation_url
+  return !!(value || this.animation_url);
 }, 'Either "image" or "animation_url" is required.');
+
 
 module.exports = mongoose.model('NftMetadata', NftMetadataSchema);

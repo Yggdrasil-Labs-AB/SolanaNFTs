@@ -6,7 +6,7 @@ import PrintNfts from '../PrintNfts/PrintNfts';
 import Filter from '../Filter/Filter';
 import { useNFTs } from '../../hooks/useNFTs';
 
-import { defaultMintCost } from '../../config/gameConfig';
+import { defaultMintCost } from '../../config/nftConfig';
 
 import { useTransactionsController } from '../../providers/TransactionsProvider';
 

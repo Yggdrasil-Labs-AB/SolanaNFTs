@@ -1,4 +1,4 @@
-export default function ModelLightbox({ open, onClose, modelSrc, title }) {
+export default function ModelLightbox({ open, onClose, modelSrc, title, children }) {
   if (!open) return null;
 
   return (
@@ -8,7 +8,7 @@ export default function ModelLightbox({ open, onClose, modelSrc, title }) {
       onClick={(e) => e.target === e.currentTarget && onClose?.()}
       style={{
         position: "fixed", inset: 0, background: "rgba(0,0,0,.6)",
-        display: "grid", placeItems: "center", zIndex: 9999, padding: 12
+        display: "grid", placeItems: "center", zIndex: 1001, padding: 12
       }}
     >
       <div
@@ -35,8 +35,7 @@ export default function ModelLightbox({ open, onClose, modelSrc, title }) {
             ✕
           </button>
         </div>
-
-        {/* eslint-disable-next-line react/no-unknown-property */}
+        
         <model-viewer
           key={modelSrc}
           src={modelSrc}
@@ -50,10 +49,10 @@ export default function ModelLightbox({ open, onClose, modelSrc, title }) {
             width: "100%",
             height: "min(70vh, 740px)",
             background: "radial-gradient(1200px 800px at 50% 40%, #1a1d24 0%, #111317 60%, #0d0f13 100%)",
-            border: 0
+            border: 0,
           }}
         />
-
+        {children}
         <div style={{ opacity: .75, fontSize: 12, padding: "8px 12px 12px", borderTop: "1px solid #2a2d36" }}>
           Drag to rotate • Scroll/pinch to zoom
         </div>
