@@ -29,9 +29,10 @@ export const GlobalVariablesProvider = ({ children }) => {
     useEffect(() => {
         const fetchUserNFTs = async () => {
             if (wallet.publicKey) {
+
                 const data = await getCoreNftsClient(wallet.publicKey.toString());
-                console.log(data);
                 setUserNfts(data);
+
             }
         };
 
@@ -41,12 +42,13 @@ export const GlobalVariablesProvider = ({ children }) => {
     useEffect(() => {
 
         const fetchSolPricing = async () => {
-            try{
+            try {
                 const resp = await fetchUsdToSolPrice();
                 // const resp = .006;
                 setApproxSolToUSD(resp);
-            }catch(e){
+            } catch (e) {
                 console.log(e);
+                setApproxSolToUSD(.006);
             }
         }
 
@@ -86,11 +88,11 @@ export const GlobalVariablesProvider = ({ children }) => {
 
             const isWhitelisted = data.whitelistAddresses.some(
                 (item) => item.address === address && item.amounts > 0
-              );
+            );
 
             if (isWhitelisted) {
 
-                switch (type){
+                switch (type) {
                     case 'sol':
                         return (price * discountPrice).toFixed(4);
                     case 'usd':

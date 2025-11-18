@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { checkTransactionStatus, createCoreNft, createSendSolTx } from '../../services/blockchainServices';
 
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
@@ -14,11 +16,16 @@ import MobileDetailsButton from '../MobileDetailsButton/MobileDetailsButton';
 import TxModalManager from '../txModal/TxModalManager';
 
 import { trackNftTransaction } from '../../services/dbServices';
+import { useWalletAdmin } from '../../providers/WalletAdminProvider';
+
+import { FaCrown } from "react-icons/fa";
 
 const NFTUpdate = ({ setInfo, setAttributes, setProperties, setStoreInfo, userRole, wallet, createOffchainMetadata, handleDeleteNftConcept }) => {
 
     const { publicKey, sendTransaction } = useWallet();
     const { connection } = useConnection();
+
+    const {authToken, loginWithWallet} = useWalletAdmin();
 
     const {
         nfts,
@@ -47,6 +54,15 @@ const NFTUpdate = ({ setInfo, setAttributes, setProperties, setStoreInfo, userRo
         setNameTracker,
         setModalType
     } = useTransactionsController();
+
+    // NEW: full royalty configuration
+    const [royaltyConfig, setRoyaltyConfig] = useState({
+        sellerFeeBps: 500,   // 500 = 5%
+        partnerShare: 50,    // % of the royalty going to partner (minter/investor)
+        partnerWallet: "",   // optional override; if empty, we use minter's wallet
+    });
+
+    const [showRoyaltyConfig, setShowRoyaltyConfig] = useState(false);
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -98,6 +114,11 @@ const NFTUpdate = ({ setInfo, setAttributes, setProperties, setStoreInfo, userRo
 
         try {
 
+            if(!authToken){
+                const resp = await loginWithWallet();
+                if(!resp) return;
+            }
+
             const transaction = await createSendSolTx(publicKey, defaultMintCost);
             const signature = await sendTransaction(transaction, connection);
 
@@ -118,9 +139,15 @@ const NFTUpdate = ({ setInfo, setAttributes, setProperties, setStoreInfo, userRo
 
                     setCreateState('started') //Tell UI to track start changes
 
-                    const resp = await createCoreNft(nfts[selectedIndex], wallet, signature); //Create Core NFT
+                    // NEW: attach royaltyBps to the NFT payload we send to backend
+                    const nftWithRoyalty = {
+                        ...nfts[selectedIndex],
+                        royaltyConfig, // this is the admin-selected seller fee in bps
+                    };
 
-                    if (resp.data.confirmed !== true) //Check if server side confirmation failed
+                    const resp = await createCoreNft(nftWithRoyalty, wallet, signature, authToken); //Create Core NFT
+
+                    if (resp?.data?.confirmed !== true) //Check if server side confirmation failed
                         await checkTransactionStatus(resp.data.serializedSignature); //Double check blockchain on frontend
 
                     setTransactionSig(resp.data.serializedSignature); //Set transaction signature
@@ -160,6 +187,103 @@ const NFTUpdate = ({ setInfo, setAttributes, setProperties, setStoreInfo, userRo
                 setSelectedCreator={setSelectedCreator}
                 filterByCreator={true}
             />
+
+            {/* ADMIN-ONLY: Royalties config for this mint */}
+            {(!showRoyaltyConfig && isAdmin) ? (
+                <div style={{ margin: 12 }}>
+                    <button style={{width: 25, height: 25, fontSize: 8, padding: 0}} onClick={() => setShowRoyaltyConfig(true)}><FaCrown/></button>
+                </div>
+            ) : (
+                <>
+                    {isAdmin && (
+                        <div className="tracker-container" style={{ margin: 12, width: 375 }}>
+                            <div className="tracker-row">
+                                <span className="tracker-label">Seller fee (bps)</span>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    max={10000}
+                                    value={royaltyConfig.sellerFeeBps}
+                                    onChange={(e) =>
+                                        setRoyaltyConfig((prev) => ({
+                                            ...prev,
+                                            sellerFeeBps: Number(e.target.value) || 0,
+                                        }))
+                                    }
+                                    style={{
+                                        marginLeft: "8px",
+                                        maxWidth: "120px",
+                                        padding: "4px 8px",
+                                        borderRadius: "4px",
+                                        border: "1px solid #555",
+                                        backgroundColor: "#2E2E2E",
+                                        color: "#FFF",
+                                    }}
+                                />
+                                <span style={{ marginLeft: 8, fontSize: 12, opacity: 0.7 }}>
+                                    ({royaltyConfig.sellerFeeBps} = {royaltyConfig.sellerFeeBps / 100}%)
+                                </span>
+                            </div>
+
+                            <div className="tracker-row" style={{ marginTop: 8 }}>
+                                <span className="tracker-label">Partner share (%)</span>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    max={100}
+                                    value={royaltyConfig.partnerShare}
+                                    onChange={(e) =>
+                                        setRoyaltyConfig((prev) => ({
+                                            ...prev,
+                                            partnerShare: Math.min(100, Math.max(0, Number(e.target.value) || 0)),
+                                        }))
+                                    }
+                                    style={{
+                                        marginLeft: "8px",
+                                        maxWidth: "80px",
+                                        padding: "4px 8px",
+                                        borderRadius: "4px",
+                                        border: "1px solid #555",
+                                        backgroundColor: "#2E2E2E",
+                                        color: "#FFF",
+                                    }}
+                                />
+                                <span style={{ marginLeft: 8, fontSize: 12, opacity: 0.7 }}>
+                                    Platform share: {100 - (royaltyConfig.partnerShare || 0)}%
+                                </span>
+                            </div>
+
+                            <div className="tracker-row" style={{ marginTop: 8, flexDirection: "column", alignItems: "flex-start" }}>
+                                <span className="tracker-label">Partner wallet (optional)</span>
+                                <input
+                                    type="text"
+                                    placeholder="Leave blank to use minter wallet"
+                                    value={royaltyConfig.partnerWallet}
+                                    onChange={(e) =>
+                                        setRoyaltyConfig((prev) => ({
+                                            ...prev,
+                                            partnerWallet: e.target.value,
+                                        }))
+                                    }
+                                    style={{
+                                        marginTop: 4,
+                                        width: "100%",
+                                        padding: "6px 8px",
+                                        borderRadius: "4px",
+                                        border: "1px solid #555",
+                                        backgroundColor: "#2E2E2E",
+                                        color: "#FFF",
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <button onClick={() => setShowRoyaltyConfig(false)}>Close</button>
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
+
             <PrintNfts
                 nfts={nfts}
                 selectedIndex={selectedIndex}
@@ -176,7 +300,7 @@ const NFTUpdate = ({ setInfo, setAttributes, setProperties, setStoreInfo, userRo
                 createNft={createNft}
                 createOffchainMetadata={createOffchainMetadata}
                 handleDeleteNftConcept={handleDeleteNftConcept}
-
+                royaltyConfig={royaltyConfig}
             />}
             <MobileDetailsButton />
         </div>

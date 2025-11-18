@@ -5,8 +5,6 @@ const solanaNode = process.env.IS_MAINNET === 'true'
   ? process.env.SOLANA_NODE  // e.g., 'https://api.mainnet-beta.solana.com'
   : 'https://api.devnet.solana.com';
 
-console.log(solanaNode);
-
 // Use that node in the Connection constructor
 const connection = new Connection(solanaNode, 'confirmed');
 

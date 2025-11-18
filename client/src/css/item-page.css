@@ -21,6 +21,7 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     cursor: pointer;
+    margin: 0px 5px;
 }
 
 .mode-pill.active {
@@ -135,3 +136,85 @@
     background: #ef4444;
     color: #fef2f2;
 }
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.item-row {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #0b0e16;
+  border: 1px solid #252734;
+}
+
+.item-row.selected {
+  border-color: #10b981;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.5);
+}
+
+.item-icon img {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #333648;
+}
+
+.item-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.item-desc {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.item-cost-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.item-attrs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.item-attr-pill {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #111827;
+  border: 1px solid #374151;
+}
+
+.item-attr-pill .attr-name {
+  opacity: 0.75;
+  margin-right: 4px;
+}
+
+.item-attr-pill .attr-value {
+  font-weight: 600;
+}
+
+

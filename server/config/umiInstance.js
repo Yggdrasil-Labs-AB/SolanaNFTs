@@ -9,7 +9,6 @@ const bs58 = require('bs58');
 
 function initializeUmi() {
     const solanaNode = process.env.IS_MAINNET === 'true' ? process.env.SOLANA_NODE : 'https://api.devnet.solana.com';
-    console.log(solanaNode);
 
     const umi = createUmi(solanaNode);
 
@@ -38,7 +37,6 @@ function initializeDevUmi(){
 
 function softInitUmi(){
     const solanaNode = process.env.IS_MAINNET === 'true' ? process.env.SOLANA_NODE : 'https://api.devnet.solana.com';
-    console.log(solanaNode);
 
     const umi = createUmi(solanaNode);
 }

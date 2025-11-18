@@ -1,17 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 
 import tempImage from '../../assets/itemBGs/tempImage.png';
+import { FaLock, FaLockOpen } from "react-icons/fa";
 
-import { FaLock } from "react-icons/fa";
-import { FaLockOpen } from "react-icons/fa";
 import MobileDetailsButton from '../MobileDetailsButton/MobileDetailsButton';
-
 import { useTransactionsController } from '../../providers/TransactionsProvider';
-
 import TxModalManager from '../txModal/TxModalManager';
 
-import { getTraitRowsFromAttributes } from '../../Utils/renderNftHelper';
-import GlbTest from '../pages/GlbTester';
+import GlbInlinePreview from '../GlbInlinePreview/GlbInlinePreview';
+import { formatTraitLabel } from '../../Utils/generalUtils';
+
+import "../../css/nftpreview.css"
 
 const NFTPreview = ({
     info,
@@ -23,84 +22,118 @@ const NFTPreview = ({
     handleModelUpload,
     modelPreviewUrl
 }) => {
+    const { isModalOpen } = useTransactionsController();
+    const [previewUrl, setPreviewUrl] = useState(null);
 
-    const {
-        isModalOpen
-    } = useTransactionsController();
+    // Traits we DON'T want to show as stats
+    const metaTraits = [
+        'type',
+        'subType',
+        'rarity',
+        'affinity',
+        'division',
+        'level',
+        'blockchain',
+        'rollQuality',
+        'statsSeedRoll',
+    ];
 
-    const [traitRows, setTraitRows] = useState([]);
+    // Everything else is a "stat"
+    const previewStats = attributes
+        .filter(attr => !metaTraits.includes(attr.trait_type))
+        // hide totally empty values
+        .filter(attr => attr.value !== "" && attr.value !== null && attr.value !== undefined);
 
+    // Safe image preview URL
     useEffect(() => {
-        setTraitRows(getTraitRowsFromAttributes(attributes));
-    }, [attributes]);
+        if (!image) {
+            setPreviewUrl(null);
+            return;
+        }
+        const url = URL.createObjectURL(image);
+        setPreviewUrl(url);
+        return () => URL.revokeObjectURL(url);
+    }, [image]);
 
-    // Determine rarity and background shadow
-    const rarity = attributes.find(attr => attr.trait_type === "rarity")?.value || "Epic";
-    const type = attributes.find(attr => attr.trait_type === "type")?.value || "unknown";
-    const subType = attributes.find(attr => attr.trait_type === "subType")?.value || "unknown";
+    const rarity = attributes.find(a => a.trait_type === "rarity")?.value || "common";
+    const type = attributes.find(a => a.trait_type === "type")?.value || "Unknown";
+    const subType = attributes.find(a => a.trait_type === "subType")?.value || "Unknown";
+    const level = attributes.find(a => a.trait_type === "level")?.value || "1";
 
-    const rarityClass = `nft-box shadow-${rarity.toLowerCase()}`; // Convert rarity to lowercase for className
-    const bannerClass = `banner-standards banner-${rarity.toLowerCase()}`
-    const nftBlockchain = attributes.find(attr => attr.trait_type === "blockchain")?.value || "solana";
-    const nftBlockchainClass = `blockchain-${nftBlockchain}`
-
-    const level = attributes.find(attr => attr.trait_type === "level")?.value || "5";
-
+    const rarityClass = `banner-${rarity.toLowerCase()}`; // reuse your gradients
+    const displayImage = previewUrl || tempImage;
 
     return (
-        <div className="nft-preview-styling">
-            <h1 className='marykate'>Creator Preview</h1>
-            <div style={{ display: 'inline-block' }}>
-                <div className="d-flex justify-content-between" style={{ marginBottom: '5px' }}>
-                    <div>Price: ${storeInfo.price}</div>
-                    {storeInfo.metadataUri ? (<div><FaLock /></div>) : (<div><FaLockOpen /></div>)}
-                </div>
-                <button className={rarityClass} >
-                    <div className='d-flex' style={{ marginBottom: '10px' }}>
-                        <div className="d-flex justify-content-center align-items-center">
-                            <img
-                                src={image ? URL.createObjectURL(image) : tempImage}
-                                alt={info.name}
-                                style={{ width: "100px", height: "100px" }}
-                            />
-                        </div>
-                        <div className="d-flex flex-column w-100">
-                            <h3 className="nft-name lazy-dog">{info.name}</h3>
-                            <div className="nft-stats d-flex flex-column align-items-center h-100 w-100 marykate">
-                                {traitRows.map((row, idx) => (
-                                    <div className="d-flex w-100" key={idx}>
-                                        {row.map((trait, j) => (
-                                            <p
-                                                key={j}
-                                                style={{
-                                                    flex: row.length === 1 ? 1 : j === 0 ? 0.45 : 0.55,
-                                                    textAlign: 'left',
-                                                }}
-                                            >
-                                                <strong>{trait.label}:</strong> {trait.value}
-                                            </p>
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{ borderTop: '1px solid white', padding: '5px 0px' }}>
+        <div className="creator-preview-shell">
+            <h2 className="marykate creator-preview-title">Creator Preview</h2>
 
+            {/* NEW ROW WRAPPER */}
+            <div className="creator-preview-row">
+                {/* LEFT: CARD */}
+                <div className="creator-preview-card">
+                    {/* ...everything that was inside creator-preview-card before... */}
+
+                    <div className="creator-preview-header">
+                        <span className="creator-preview-price">
+                            Price: ${storeInfo.price || '0.00'}
+                        </span>
+                        <span className="creator-preview-lock">
+                            {storeInfo.metadataUri ? <FaLock /> : <FaLockOpen />}
+                        </span>
                     </div>
-                    <div className="d-flex gap-3">
-                        <div className={nftBlockchainClass}>{nftBlockchain}</div>
-                        <div className={bannerClass}>{type}</div>
-                        <div className={bannerClass}>{subType}</div>
-                        <div className={bannerClass}>Lvl. {level}</div>
+
+                    <div className="creator-preview-image">
+                        <img src={displayImage} alt={info.name || 'NFT preview'} />
                     </div>
-                </button>
-                <GlbTest modelPreviewUrl={modelPreviewUrl}/>
+
+                    <div className="creator-preview-name">
+                        {info.name || 'Unnamed NFT'}
+                    </div>
+
+                    <div className="creator-preview-badges">
+                        <span className={`badge badge-rarity ${rarityClass}`}>{rarity}</span>
+                        <span className="badge">{type}</span>
+                        <span className="badge">{subType}</span>
+                    </div>
+
+                    <div className="creator-preview-stats">
+                        {previewStats.length ? (
+                            previewStats.map((trait) => (
+                                trait.value > 0 &&
+                                <div
+                                    key={trait.trait_type}
+                                    className="creator-preview-stat-row"
+                                >
+                                    <span className="stat-label">
+                                        {formatTraitLabel(trait.trait_type)}
+                                    </span>
+                                    <span className="stat-value">+{trait.value}%</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="creator-preview-empty">
+                                Add stats in the sidebar to see them here.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* RIGHT: 3D MODEL */}
+                {modelPreviewUrl && (
+                    <div className="creator-preview-model">
+                        <GlbInlinePreview modelPreviewUrl={modelPreviewUrl} />
+                    </div>
+                )}
             </div>
-            {isModalOpen && <TxModalManager
-                handleImageChange={handleImageChange}
-                handleAddNftConcept={handleAddNftConcept}
-                handleModelUpload={handleModelUpload} />}
+
+            {isModalOpen && (
+                <TxModalManager
+                    handleImageChange={handleImageChange}
+                    handleAddNftConcept={handleAddNftConcept}
+                    handleModelUpload={handleModelUpload}
+                />
+            )}
+
             <MobileDetailsButton />
         </div>
     );

@@ -173,7 +173,6 @@ export const voteForNFT = async (nftId, voterAddress, voteType) => {
  */
 export const trackNftTransaction = async (nftId, userId, type, amount, currency, txSignature) => {
 
-    console.log(nftId, userId, type, amount, currency, txSignature);
 
     try {
         const response = await axios.patch(
@@ -307,7 +306,6 @@ export const getUTCTimezone = async () => {
     try {
         const response = await axios.get(`${URI_SERVER}/api/timezone/utc`);
 
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error("Error updating pricing:", error.response?.data || error.message);

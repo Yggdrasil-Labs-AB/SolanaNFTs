@@ -11,7 +11,8 @@ const {
   fetchCollection,
   fetchAssetsByOwner,
   transferV1,
-  addPlugin
+  addPlugin,
+  ruleSet
 } = require('@metaplex-foundation/mpl-core');
 
 const { setComputeUnitLimit, setComputeUnitPrice } = require('@metaplex-foundation/mpl-toolbox')
@@ -251,81 +252,174 @@ exports.voteForNftConcept = async (req, res) => {
 
 exports.createAndSendNFT = async (req, res) => {
   const { nft, receiverPubKey } = req.body;
+  const { role, walletAddress } = req.user; // from JWT
+  const isAdmin = role === "admin";
 
   const isValidated = await validateNFT(nft);
 
   if (!isValidated.success) {
     console.error("NFT validation failed");
-    return res.status(400).json({ success: false, error: 'Invalid NFT data.' });
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid NFT data." });
   }
+
+  console.log("NFT payload:", nft);
+  console.log("Royalty config from client:", nft.royaltyConfig);
+
+  const rawCfg = nft.royaltyConfig || {};
+
+  // --- ROLE-BASED ROYALTY LOGIC ----------------------------
+
+  let royaltyBasisFee; // sellerFeeBps
+  let partnerTake;     // % of royalties
+  let platformTake;
+  let royaltyCreator;  // address that gets royalties / NFT
+
+  if (isAdmin) {
+    // Admins can customize, but we still validate & clamp
+    const sellerFeeBps = Number(rawCfg.sellerFeeBps);
+    const partnerShare = Number(rawCfg.partnerShare);
+
+    royaltyBasisFee =
+      Number.isFinite(sellerFeeBps) && sellerFeeBps >= 0 && sellerFeeBps <= 10_000
+        ? sellerFeeBps
+        : 500; // default 5%
+
+    partnerTake =
+      Number.isFinite(partnerShare) && partnerShare >= 0 && partnerShare <= 100
+        ? partnerShare
+        : 50; // default 50% of royalties
+
+    platformTake = 100 - partnerTake;
+
+    // If admin doesn't supply a partner wallet, use receiverPubKey or fallback to their own wallet
+    royaltyCreator =
+      (rawCfg.partnerWallet && rawCfg.partnerWallet.trim()) ||
+      receiverPubKey ||
+      walletAddress;
+  } else {
+    // MEMBERS / MARKETPLACE BUYERS: ignore client royaltyConfig
+    royaltyBasisFee = 500; // 5% total
+    partnerTake = 50;      // 50% of 5% to buyer
+    platformTake = 50;     // 50% of 5% to platform
+
+    // For members, always send NFT + royalties to the logged-in wallet,
+    // not to an arbitrary address the client can spoof.
+    royaltyCreator = walletAddress;
+  }
+
+  console.log("Effective royalty config:", {
+    isAdmin,
+    royaltyBasisFee,
+    partnerTake,
+    platformTake,
+    royaltyCreator,
+  });
 
   try {
     const collection = await fetchCollection(umi, CORE_COLLECTION_ADDRESS);
     const assetSigner = generateSigner(umi);
 
-    let perComputeUnit;
-    try {
-      perComputeUnit = await getPriorityFee();
-    } catch (error) {
-      perComputeUnit = 3500000; // fallback fee
-    }
+    const perComputeUnit = await getPriorityFee();
 
     let builder = transactionBuilder()
       .add(setComputeUnitLimit(umi, { units: 600_000 }))
       .add(setComputeUnitPrice(umi, { microLamports: perComputeUnit }))
-      .add(create(umi, {
-        asset: assetSigner,
-        collection,
-        name: nft.name,
-        uri: nft.storeInfo.metadataUri,
-      }))
-      .add(addPlugin(umi, {
-        asset: assetSigner.publicKey,
-        collection,
-        plugin: { type: 'ImmutableMetadata' },
-      }))
-      .add(transferV1(umi, {
-        asset: publicKey(assetSigner.publicKey),
-        newOwner: publicKey(receiverPubKey),
-        collection: CORE_COLLECTION_ADDRESS
-      }));
+      .add(
+        create(umi, {
+          asset: assetSigner,
+          collection,
+          name: nft.name,
+          uri: nft.storeInfo.metadataUri,
+        })
+      )
+      .add(
+        addPlugin(umi, {
+          asset: assetSigner.publicKey,
+          collection,
+          plugin: { type: "ImmutableMetadata" },
+        })
+      )
+      .add(
+        addPlugin(umi, {
+          asset: assetSigner.publicKey,
+          collection,
+          plugin: {
+            type: "Royalties",
+            basisPoints: royaltyBasisFee,
+            creators: [
+              {
+                address: publicKey(royaltyCreator), // partner / buyer
+                percentage: partnerTake,
+              },
+              {
+                // team / platform wallet – you might want a fixed team wallet here instead of assetSigner
+                address: publicKey(assetSigner.publicKey),
+                percentage: platformTake,
+              },
+            ],
+            ruleSet: ruleSet("None"),
+            authority: {
+              type: "None",
+            },
+          },
+        })
+      )
+      .add(
+        transferV1(umi, {
+          asset: publicKey(assetSigner.publicKey),
+          newOwner: publicKey(royaltyCreator),
+          collection: CORE_COLLECTION_ADDRESS,
+        })
+      );
 
-    // Send the transaction (without confirmation yet)
     const signature = await builder.send(umi);
     const serializedSignature = base58.deserialize(signature)[0];
 
-    // Attempt to confirm the transaction (with timeout)
     try {
       await Promise.race([
         umi.rpc.confirmTransaction(signature, {
-          strategy: { type: 'blockhash', ...(await umi.rpc.getLatestBlockhash()) },
+          strategy: {
+            type: "blockhash",
+            ...(await umi.rpc.getLatestBlockhash()),
+          },
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Confirmation timeout')), 30000)) //30000
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Confirmation timeout")),
+            30_000
+          )
+        ),
       ]);
 
       console.log("Transaction confirmed on server:", serializedSignature);
 
-      // Confirmed successfully on server
-      return res.status(200).json({ success: true, serializedSignature, confirmed: true });
-
+      return res
+        .status(200)
+        .json({ success: true, serializedSignature, confirmed: true });
     } catch (confirmationError) {
-      // Confirmation failed/timed out
-      console.warn("Server confirmation failed/timed out:", confirmationError.message);
+      console.warn(
+        "Server confirmation failed/timed out:",
+        confirmationError.message
+      );
 
-      // Still send signature to frontend for second confirmation attempt
       return res.status(202).json({
         success: true,
         serializedSignature,
         confirmed: false,
-        warning: 'Server confirmation timed out. Frontend must retry confirmation.'
+        warning:
+          "Server confirmation timed out. Frontend must retry confirmation.",
       });
     }
-
   } catch (sendError) {
     console.error("Error sending transaction:", sendError.message);
-    return res.status(500).json({ success: false, error: sendError.message });
+    return res
+      .status(500)
+      .json({ success: false, error: sendError.message });
   }
 };
+
 
 exports.getCoreNFTs = async (req, res) => {
 

@@ -128,10 +128,6 @@ const PrintNfts = ({
           const imgSrc = ipfsToHttp(nft.image);
           const glbSrc = ipfsToHttp(nft.animation_url);
 
-
-          console.log(imgSrc);
-          console.log(glbSrc);
-
           return (
             <div key={index} className={`nft-card rarity-${rarity.toLowerCase()}`}>
               {/* IMAGE + TITLE / VIEW 3D AREA */}

@@ -7,7 +7,7 @@ import TxModalManager from '../txModal/TxModalManager';
 import AdminTransactionsPanel from "../AdminTransactions/AdminTransactionsPanel";
 
 import { useTransactionsController } from "../../providers/TransactionsProvider";
-import { useWalletAdmin } from "../../hooks/useWalletAdmin";
+import { useWalletAdmin } from "../../providers/WalletAdminProvider";
 import { deleteAttribute, patchAttributes, replaceAttribute, rollAllServerItems, submitWhitelistAddress, updateBlueprintMetadata, updateRarityOnAllNfts } from "../../services/dbServices";
 
 import { pricingValues } from "../../config/nftConfig";

@@ -132,3 +132,64 @@ export const cleanAttributes = (attributes) => {
     return !(value === 0 || value === '0');
   });
 };
+
+// Turn internal trait_type keys into nice labels
+export const formatTraitLabel = (traitType) => {
+  const map = {
+    // meta
+    type: "Type",
+    subType: "Sub Type",
+    rarity: "Rarity",
+    affinity: "Affinity",
+    division: "Division",
+    level: "Level",
+    blockchain: "Blockchain",
+
+    // core stats
+    strengthModifier: "Strength",
+    vitalityModifier: "Vitality",
+    resilienceModifier: "Resilience",
+    intelligenceModifier: "Intelligence",
+    resistanceModifier: "Resistance",
+
+    health: "Health",
+    damage: "Damage",
+    defense: "Defense",
+    criticalStrikeDamage: "Crit Damage",
+    spellAttack: "Spell Attack",
+    spellDefense: "Spell Defense",
+
+    rollQuality: "Roll Quality",
+    statsSeedRoll: "Stats Seed",
+  };
+
+  if (map[traitType]) return map[traitType];
+
+  // Fallback: split camelCase / remove "Modifier", capitalize words
+  return traitType
+    .replace("Modifier", "")
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (c) => c.toUpperCase());
+};
+
+export function calculateRoyalties(sellerFeeBps, partnerShare) {
+  // Fallbacks in case something is missing
+  const feeBps = typeof sellerFeeBps === "number" ? sellerFeeBps : 500; // 5%
+  const partner = typeof partnerShare === "number" ? partnerShare : 50; // 50%
+
+  const totalRoyaltyPct = feeBps / 100;           // e.g. 500 -> 5
+  const partnerSharePct = partner;               // % of royalties
+  const platformSharePct = 100 - partner;        // % of royalties
+
+  // Optional: how much of the whole sale each side gets
+  const partnerOfSale = (totalRoyaltyPct * partnerSharePct) / 100;
+  const platformOfSale = (totalRoyaltyPct * platformSharePct) / 100;
+
+  return {
+    totalRoyaltyPct: totalRoyaltyPct.toFixed(2),   // "5.00"
+    partnerSharePct: partnerSharePct.toFixed(2),   // "50.00"
+    platformSharePct: platformSharePct.toFixed(2), // "50.00"
+    partnerOfSale: partnerOfSale.toFixed(2),       // "2.50" if you ever want it
+    platformOfSale: platformOfSale.toFixed(2),     // "2.50"
+  };
+}

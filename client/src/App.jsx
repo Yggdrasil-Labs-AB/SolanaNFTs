@@ -9,7 +9,7 @@ import CharacterSubmission from './components/pages/CharacterSubmission';
 import Admin from './components/pages/Admin';
 import TokenSync from './components/pages/TokenSync';
 import NftHomepage from './components/pages/NftHomepage';
-import { useWalletAdmin } from './hooks/useWalletAdmin';
+import { useWalletAdmin } from './providers/WalletAdminProvider';
 
 
 function App() {

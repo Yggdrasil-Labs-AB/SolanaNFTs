@@ -8,15 +8,13 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
-  background-color: rgb(160, 160, 160);
   display: flex;
+  background: radial-gradient(circle at 50% 10%, #1f222b 0, #111317 55%, #050608 100%);
 }
 
 /* Layout container to avoid overflow */
 .layout-container {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
 }
 
 .layout-container-items {
@@ -31,27 +29,6 @@ html, body {
 }
 
 @font-face {
-  font-family: "lazy-dog";
-  src: url("./assets/fonts/lazy_dog_x.TTF") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-.lazy-dog {
-  font-family: "lazy-dog", "sans-serif";
-}
-
-.header-fonts {
-  font-family: "lazy-dog", "sans-serif";
-  font-weight: normal;
-  text-shadow:
-    1px 1px 0 #000,
-    -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000;
-}
-
-@font-face {
   font-family: "Marykate";
   src: url("./assets/fonts/Marykate.ttf") format("truetype");
   font-weight: normal;
@@ -59,11 +36,11 @@ html, body {
 }
 
 .marykate {
-  font-family: "Marykate", Arial, Helvetica, sans-serif;
+  font-family: "Rowdies", Arial, Helvetica, sans-serif;
 }
 
 .subtext-fonts {
-  font-family: "Marykate", Arial, Helvetica, sans-serif;
+  font-family: "Rowdies", Arial, Helvetica, sans-serif;
   /* color: rgb(228, 224, 230); */
   /* color: rgb(215, 191, 226); */
   color: #d6d6ed;
@@ -255,7 +232,7 @@ textarea:disabled{
 
 .store-nav a {
   color: #D6D6ED;
-  font-size: 1.5rem !important;
+  font-size: 1.2rem !important;
 }
 
 /* Responsive Styling */
@@ -362,6 +339,23 @@ textarea:disabled{
   font-weight: bold;
   text-align: center;
 }
+
+/* somewhere in your CSS */
+.verify-button {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #888;
+  background: #222;
+  color: #fff;
+  cursor: pointer;
+}
+
+.verify-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 
 
 /* NAVBAR FROM BOOH WORLD */
@@ -577,8 +571,6 @@ textarea:focus::placeholder {
   color: #cccccc;
   /* Optional: lighter grey when focused */
 }
-
-
 
 /* NFT CSS */
 .nft-name {

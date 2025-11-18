@@ -6,7 +6,7 @@ import { FaUpload } from "react-icons/fa";
 import SolConnection from "../Connection/SolConnection";
 import { submitCharacter } from "../../services/dbServices";
 
-import { useWalletAdmin } from "../../hooks/useWalletAdmin";
+import { useWalletAdmin } from "../../providers/WalletAdminProvider";
 
 import { submissionCost } from "../../config/nftConfig";
 
@@ -105,8 +105,8 @@ const SubmitCharacter = () => {
                     <h2>Submit Your Character</h2>
                     <p className="character-description">
                         Got a cool character idea? Turn it into a ghost and bring it to life in <strong>Booh Brawlers</strong>! 👻✨
-                        Upload an image of your original (or non-patented) character, and we'll transform it into a battle-ready ghost.
-                        As a bonus, you'll receive your very own <strong>NFT reward</strong> of the character!
+                        Upload an image of your original (or non-patented) character, and we will transform it into a battle-ready ghost.
+                        As a bonus, you willll receive your very own <strong>NFT reward</strong> of the character!
                         Make sure your <Link to='s'>submission follows the guidelines</Link>—let’s get going! 🚀
                     </p>
                     <p className='character-description'>

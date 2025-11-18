@@ -4,6 +4,7 @@ const botBlocker = require('../Middleware/botBlocker');
 const {verifySolPayment} = require('../Middleware/checkSolPayment');
 const {checkWhitelistSpot} = require('../Middleware/whitelistCheck');
 const {verifyAdminStatus} = require("../Middleware/adminCheck");
+const { requireAuth } = require("../controllers/loginController");
 const { 
     getAllNftConcepts, 
     addNftConcept, 
@@ -46,7 +47,7 @@ router.patch('/concepts/:id/vote', verifyApiKey, voteForNftConcept);
 // 🔹 Record NFT Create/Buy Transactions
 router.patch('/concepts/:id/transaction', verifyApiKey, trackNftTransaction);
 
-router.post('/createnft', verifyApiKey, createAndSendNFT);
+router.post('/createnft', verifyApiKey, requireAuth, createAndSendNFT);
 
 router.post('/getCoreNfts', getCoreNFTs);
 

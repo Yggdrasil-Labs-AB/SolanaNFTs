@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Link } from 'react-router-dom';
 
 import SolConnection from '../../Connection/SolConnection';
@@ -9,8 +9,11 @@ import { IS_MAINNET } from "../../../config/config";
 
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useTransactionsController } from '../../../providers/TransactionsProvider';
+import { calculateRoyalties, shortenAddress } from "../../../Utils/generalUtils";
+import { useWalletAdmin } from "../../../providers/WalletAdminProvider";
+import { DEFAULT_ROYALTY_CONFIG } from "../../../config/nftConfig";
 
-const TxModalMint = ({ createNft }) => {
+const TxModalMint = ({ createNft, royaltyConfig }) => {
     const {
         txState,
         createState,
@@ -21,10 +24,12 @@ const TxModalMint = ({ createNft }) => {
         redirectSecret,
         nameTracker,
         inGameSpend,
-        setRedirectSecret
     } = useTransactionsController();
 
     const wallet = useWallet();
+    const { userRole } = useWalletAdmin();
+
+    const isAdmin = userRole === "admin" ? true : false;
 
     // Solscan URL for transaction tracking
     const solScanner = useMemo(() => {
@@ -33,14 +38,69 @@ const TxModalMint = ({ createNft }) => {
             : `https://solscan.io/tx/${transactionSig}?cluster=devnet`;
     }, [transactionSig]);
 
+    // Merge with defaults – always have something sane
+    const effectiveRoyaltyConfig = isAdmin
+        ? { ...DEFAULT_ROYALTY_CONFIG, ...(royaltyConfig || {}) }
+        : DEFAULT_ROYALTY_CONFIG; // 👈 non-admins can’t change anything
+
+    const partner = effectiveRoyaltyConfig.partnerWallet
+        ? shortenAddress(effectiveRoyaltyConfig.partnerWallet)
+        : "self";
+
+    const {
+        totalRoyaltyPct,
+        partnerOfSale,
+        platformOfSale
+    } = calculateRoyalties(
+        effectiveRoyaltyConfig.sellerFeeBps,
+        effectiveRoyaltyConfig.partnerShare
+    );
+
+    const who = isAdmin ? "Partner" : "Your";
+
     return (
         <>
             <TxModalHeader />
             {/* Modal Body */}
             <div className="modal-body">
                 <div className="tracker-container">
-                    <div className="tracker-row"><span className="tracker-label">NFT Name:</span><span className="tracker-value">{nameTracker}</span></div>
-                    <div className="tracker-row"><span className="tracker-label">Payment type:</span><span className="tracker-value">{paymentTracker}</span></div>
+                    <div className="tracker-row">
+                        <span className="tracker-label">NFT Name:</span>
+                        <span className="tracker-value">{nameTracker}</span>
+                    </div>
+
+                    <div className="tracker-row">
+                        <span className="tracker-label">Payment type:</span>
+                        <span className="tracker-value">{paymentTracker}</span>
+                    </div>
+
+                    {isAdmin && (
+                        <div className="tracker-row">
+                            <span className="tracker-label">Partner:</span>
+                            <span className="tracker-value">{partner}</span>
+                        </div>
+                    )}
+
+                    <div className="tracker-row">
+                        <span className="tracker-label">Royalties:</span>
+                        <span className="tracker-value">
+                            {totalRoyaltyPct}%  {/* e.g. 5.00% */}
+                        </span>
+                    </div>
+
+                    <div className="tracker-row">
+                        <span className="tracker-label">{who} Share:</span>
+                        <span className="tracker-value">
+                            {partnerOfSale}%  {/* e.g. 2.5% */}
+                        </span>
+                    </div>
+
+                    <div className="tracker-row">
+                        <span className="tracker-label">Platform Share:</span>
+                        <span className="tracker-value">
+                            {platformOfSale}% {/* e.g. 2.5% */}
+                        </span>
+                    </div>
                     <div className="tracker-row">
                         <span className="tracker-label">Mint cost:</span>
                         {solPriceLoaded ? (<span className="tracker-value">-{preCalcPayment} {renderCostSign(paymentTracker)}</span>) : (<div className='loader'></div>)}
@@ -80,7 +140,7 @@ const TxModalMint = ({ createNft }) => {
                                             {createState !== 'started' ? (<button className="button-style-regular" onClick={() => createNft()}>Confirm</button>)
                                                 : (
                                                     <div className="d-flex flex-column align-items-center">
-                                                        <div style={{borderBottom: '1px solid white'}}>
+                                                        <div style={{ borderBottom: '1px solid white' }}>
                                                             DO NOT EXIT PAGE!
                                                         </div>
                                                         <div>
@@ -95,7 +155,7 @@ const TxModalMint = ({ createNft }) => {
                             <div className="d-flex flex-column gap-2">
                                 <div className='tracker-container text-center d-flex flex-column' style={{ fontSize: '0.9rem' }}>
                                     <div>
-                                        <strong>"{nameTracker}"</strong> has been successfully minted and sent to your wallet!
+                                        <strong>`{nameTracker}`</strong> has been successfully minted and sent to your wallet!
                                         <div className="mt-2">
                                             <Link
                                                 to="#"

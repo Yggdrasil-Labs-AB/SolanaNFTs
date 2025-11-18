@@ -8,7 +8,7 @@ const TxModalUploadModel = ({handleModelUpload}) => {
     return (
         <>
             {/* Close button */}
-            <TxModalHeader title={"Model Upload Rules"} disableSimpleClose={true} />
+            <TxModalHeader title={"Upload Rules"} disableSimpleClose={true} />
 
             {/* Modal Body */}
             <div className="modal-body">
@@ -20,7 +20,7 @@ const TxModalUploadModel = ({handleModelUpload}) => {
                         <li>.glb format (glTF binary)</li>
                         <li>Keep file size small (optimize textures/meshes)</li>
                         <li>Single mesh/materials preferred for performance</li>
-                        <li>Use PBR textures if included (baseColor/metallicRoughness/normal)</li>
+                        <li>Use PBR textures if included (baseColor/normal)</li>
                         <li>Optional: Draco/KTX2 compression if supported</li>
                     </ul>
                 </div>

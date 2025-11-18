@@ -65,7 +65,7 @@ const SideNav = ({
     const [isCreated, setIsCreated] = useState(false); // Indicates if the metadata has been successfully created
 
     // Determine the page title dynamically
-    const title = page === 'create' ? 'Concept Creator' : 'Concept Editor';
+    const title = page === 'create' ? 'Creator' : 'Editor';
 
     // Check if the metadata is locked
     const isMetadataLocked = !!storeInfo.metadataUri;

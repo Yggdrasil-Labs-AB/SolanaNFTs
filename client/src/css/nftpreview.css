@@ -1,0 +1,170 @@
+/* Right-hand preview column */
+.creator-preview-shell {
+  padding: 16px 24px;
+  color: #f9fafb;
+}
+
+.creator-preview-title {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+/* Row with card (left) + model (right) */
+.creator-preview-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Card */
+.creator-preview-card {
+  width: 360px;
+  background: #0c0f16;
+  border-radius: 16px;
+  border: 1px solid #252734;
+  padding: 14px 14px 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+  margin-top: 60px;
+}
+
+/* Header */
+.creator-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.creator-preview-price {
+  opacity: 0.85;
+}
+
+.creator-preview-lock {
+  font-size: 14px;
+}
+
+/* Image */
+.creator-preview-image {
+  width: 100%;
+  aspect-ratio: 3 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #10131a;
+  margin-bottom: 12px;
+}
+
+.creator-preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Name */
+.creator-preview-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Badges */
+.creator-preview-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: #111827;
+  border: 1px solid #374151;
+}
+
+.badge-chain {
+  background: linear-gradient(90deg, #9945ff, #14f195);
+  color: #020617;
+  border-color: transparent;
+}
+
+/* Reuse your rarity gradient classes for .badge-rarity.banner-xxx */
+.badge-rarity.banner-common,
+.badge-rarity.banner-uncommon,
+.badge-rarity.banner-rare,
+.badge-rarity.banner-epic,
+.badge-rarity.banner-legendary {
+  border: none;
+  color: #f9fafb;
+}
+
+/* Stats */
+.creator-preview-stats {
+  background: #10131a;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.creator-preview-stat-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.creator-preview-stat-row .stat-label {
+  opacity: 0.75;
+}
+
+.creator-preview-stat-row .stat-value {
+  font-weight: 600;
+}
+
+.creator-preview-empty {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* 3D model (right side) */
+.creator-preview-model {
+  flex: 1;
+  max-width: 520px;
+  min-width: 260px;
+  background: #050711;
+  border-radius: 16px;
+  border: 1px solid #252734;
+  padding: 10px;
+  /* Optional aspect ratio so it doesn't get super tall */
+  aspect-ratio: 1 / 1;
+  margin-top: 60px;
+}
+
+/* Ensure whatever GlbTest renders fills its box */
+.creator-preview-model model-viewer,
+.creator-preview-model canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Stack card + model on smaller widths */
+@media (max-width: 900px) {
+  .creator-preview-row {
+    flex-direction: column;
+  }
+
+  .creator-preview-card {
+    width: 100%;
+  }
+
+  .creator-preview-model {
+    width: 100%;
+    max-width: none;
+  }
+}

@@ -10,6 +10,7 @@ const whitelistRoutes = require('./whitelist');
 const timezoneRoutes = require('./time');
 const adminRoutes = require('./admin');
 const tokenSyncRoutes = require('./tokenSync');
+const loginRoutes = require("./login");
 
 // Combine all route files
 router.use('/upload', uploadRoutes);
@@ -22,5 +23,6 @@ router.use('/whitelist', whitelistRoutes);
 router.use('/timezone', timezoneRoutes);
 router.use('/xyz', adminRoutes);
 router.use('/tokensync', tokenSyncRoutes);
+router.use('/auth', loginRoutes);
 
 module.exports = router;

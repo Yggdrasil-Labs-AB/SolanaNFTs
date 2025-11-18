@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { useGlobalVariables } from '../../providers/GlobalVariablesProvider';
@@ -22,7 +22,10 @@ import '../../css/mobile-Navbar.css'
 import { useTransactionsController } from '../../providers/TransactionsProvider';
 
 import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
-import { useWalletAdmin } from '../../hooks/useWalletAdmin';
+import { useWalletAdmin } from '../../providers/WalletAdminProvider';
+
+import { FaAppStoreIos } from "react-icons/fa";
+import { IoLogoGooglePlaystore } from "react-icons/io5";
 
 const Navbar = () => {
 
@@ -77,8 +80,7 @@ const Navbar = () => {
 
     const {userRole} = useWalletAdmin();
 
-    const isAdmin = userRole === "admin";
-    console.log(userRole);
+    const isAdmin = userRole === "admin" ? true : false;
 
     return (
         <nav className="store-navbar-main">
@@ -86,7 +88,7 @@ const Navbar = () => {
             <div className="d-flex justify-content-between align-items-center">
                 <div className="d-flex gap-3 align-items-center">
                     <div>
-                        <Link className="d-flex align-items-center gap-1 header-fonts" to="/" style={{ fontSize: '1.4rem', color: 'white' }}>
+                        <Link className="d-flex align-items-center gap-1" to="/" style={{ fontSize: '1.4rem', color: 'white' }}>
                             <img
                                 src={BoohLogo} // Replace with your logo
                                 alt="Marketplace Logo"
@@ -99,7 +101,21 @@ const Navbar = () => {
                     {/* Desktop Navbar */}
                     <div className="disable-on-mobile" style={{ borderRight: '2px solid white', height: '40px' }}></div>
                     <div className='d-flex gap-4 store-nav marykate disable-on-mobile'>
-                        <Link to='https://t.me/BoohBrawlBot/BoohBrawlers' target='_blank'>Play Game</Link>
+                         <div
+                            className="dropdown-container"
+                            onMouseEnter={() => setIsHubDropdownOpen(true)}
+                            onMouseLeave={() => setIsHubDropdownOpen(false)}
+                        >
+                            <Link to="#" className="dropdown-trigger">
+                                Play Game
+                            </Link>
+
+                            {/* Keep menu in the DOM, just toggle the 'open' class */}
+                            <div className={`dropdown-menu ${isHubDropdownOpen ? "open" : ""}`}>
+                                <Link to="/"><FaAppStoreIos/> App Store </Link>
+                                <Link to="/character-submit"><IoLogoGooglePlaystore/> Play Store</Link>
+                            </div>
+                        </div>
                         {/* <div style={{ borderRight: '2px solid #fff', margin: '10px 0px' }}></div> */}
                         <Link to='/marketplace'>Marketplace</Link>
                         {/* <div style={{ borderRight: '2px solid #fff', margin: '10px 0px' }}></div> */}
@@ -110,15 +126,14 @@ const Navbar = () => {
                             onMouseLeave={() => setIsHubDropdownOpen(false)}
                         >
                             <Link to="#" className="dropdown-trigger">
-                                In-Game Items
+                                NFT Hub
                             </Link>
 
                             {/* Keep menu in the DOM, just toggle the 'open' class */}
                             <div className={`dropdown-menu ${isHubDropdownOpen ? "open" : ""}`}>
-                                <button onClick={() => handlePageChange("create")}>Create Item</button>
-                                <button onClick={() => handlePageChange("update")}>Create Nft</button>
-                                <button onClick={() => handlePageChange("update")}>Edit Items</button>
-                                <Link to="/character-submit">Subm. Character</Link>
+                                <button onClick={() => handlePageChange("create")}>Create Nft</button>
+                                <button onClick={() => handlePageChange("update")}>Nft Concepts</button>
+                                <Link to="/character-submit">Submissions</Link>
                             </div>
                         </div>
                         {/* <div style={{ borderRight: '2px solid #fff', margin: '10px 0px' }}></div> */}
@@ -133,10 +148,10 @@ const Navbar = () => {
 
                 {/* Desktop Navbar */}
                 <div className="d-flex gap-5 disable-on-mobile">
-                    <div className="d-flex flex-column marykate" style={{ fontSize: '0.9rem' }}>
+                    {/* <div className="d-flex flex-column marykate" style={{ fontSize: '0.75rem' }}>
                         <p className="m-0">Baby Booh: {inGameCurrency}</p>
                         <p className="m-0">Booh Token: {boohToken}</p>
-                    </div>
+                    </div> */}
                     <div>
                         <SolConnection />
                     </div>
@@ -211,10 +226,10 @@ const Navbar = () => {
                                 </div>
                                 <div className="mobile-nav-login">
                                     <div className="d-flex gap-5 justify-content-between align-items-center h-100" style={{ padding: '0px 20px' }}>
-                                        <div className="d-flex flex-column marykate" style={{ fontSize: '0.9rem' }}>
+                                        {/* <div className="d-flex flex-column marykate" style={{ fontSize: '0.9rem' }}>
                                             <p className="m-0">Baby Booh: {inGameCurrency}</p>
                                             <p className="m-0">Booh Token: {boohToken}</p>
-                                        </div>
+                                        </div> */}
                                         <div>
                                             <SolConnection />
                                         </div>

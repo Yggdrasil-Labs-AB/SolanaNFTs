@@ -29,7 +29,6 @@
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 5;
-  background: radial-gradient(circle at 50% 10%, #1f222b 0, #111317 55%, #050608 100%);
   cursor: pointer;
   overflow: hidden;
 }

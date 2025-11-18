@@ -38,9 +38,6 @@ export const fetchNFTsUtils = async (ownerAddress) => {
       throw new Error(`QuickNode Error: ${data.error.message}`);
     }
 
-    console.log("All NFTs:", data.result);
-    // console.log("Collection NFTs:", collection);
-    // return collection;
   } catch (error) {
     console.error("Failed to fetch NFTs:", error);
     throw error; // Rethrow error if needed

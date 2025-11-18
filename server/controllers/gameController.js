@@ -3,17 +3,78 @@ const { fetchRollQualityHelper, validateGameIdUtils, DeductInGameBabyBooh } = re
 
 const InGameItem = require('../Models/InGameItem');
 
+exports.getAllItems = async (req, res) => {
+    try {
+        const allItems = await InGameItem.find(); // Retrieve all documents from the collection
+        res.status(200).json(allItems); // Send the data as JSON
+    } catch (error) {
+        console.error('Error fetching metadata:', error);
+        res.status(500).json({ error: 'Failed to fetch metadata' });
+    }
+}
+
 exports.addNewInGameItem = async (req, res) => {
+    try {
+        console.log("Insert new Item");
+
+        const data = new InGameItem(req.body);
+        const savedData = await data.save();
+
+        res.status(201).json(savedData);
+    } catch (error) {
+        console.error("Error creating NFT metadata:", error);
+        res.status(400).json({ error: error.message });
+    }
+};
+
+exports.updateItem = async (req, res) => {
   try {
-    console.log("Insert new Item");
+    const { id } = req.params; // Extract id from request parameters
+    const updates = req.body; // Extract updates from request body
 
-    const data = new InGameItem(req.body);
-    const savedData = await data.save();
+    console.log(updates);
 
-    res.status(201).json(savedData);
+    // Fetch the current metadata
+    const existingItem = await InGameItem.findById(id);
+    if (!existingItem) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    // Check for changes
+    const updatedFields = {};
+    Object.keys(updates).forEach((key) => {
+      if (JSON.stringify(existingItem[key]) !== JSON.stringify(updates[key])) {
+        updatedFields[key] = updates[key];
+      }
+    });
+
+    const updatedItem = await InGameItem.findByIdAndUpdate(
+      id,
+      { $set: updates }, // Apply updates using $set
+      { new: true, runValidators: true } // Return the updated document and run validation
+    );
+
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'NFT not found' }); // Handle case when the document doesn't exist
+    }
+
+    res.status(200).json(updatedItem); // Respond with the updated document
   } catch (error) {
-    console.error("Error creating NFT metadata:", error);
-    res.status(400).json({ error: error.message });
+    console.error('Error updating NFT:', error);
+    res.status(400).json({ error: error.message }); // Respond with a 400 status and the error message
+  }
+};
+
+exports.deleteItem = async (req, res) => {
+  try {
+    const deletedItem = await InGameItem.findByIdAndDelete(req.params.id);
+    if (!deletedItem) {
+      return res.status(404).json({ error: 'Metadata not found' });
+    }
+    res.status(200).json({ message: 'Metadata deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting NFT metadata:', error);
+    res.status(500).json({ error: error.message });
   }
 };
 

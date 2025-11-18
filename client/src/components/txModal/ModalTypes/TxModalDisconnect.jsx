@@ -8,7 +8,7 @@ import { useGlobalVariables } from '../../../providers/GlobalVariablesProvider';
 
 import { useTransactionsController } from "../../../providers/TransactionsProvider";
 
-const TxModalDisconnect = ({ }) => {
+const TxModalDisconnect = () => {
 
     const wallet = useWallet();
     const { disconnect } = useWallet(); // Wallet hook
@@ -33,7 +33,7 @@ const TxModalDisconnect = ({ }) => {
                 <div className="tracker-container">
                     <div className="tracker-row"><span className="tracker-label">Baby Booh</span><span className="tracker-value">{inGameCurrency}</span></div>
                     <div className="tracker-row"><span className="tracker-label">Booh Token</span><span className="tracker-value">{boohToken}</span></div>
-                    <div className="tracker-row"><span className="tracker-label">Booh Brawler NFT's: </span><span className="tracker-value">{userNfts.length}</span></div>
+                    <div className="tracker-row"><span className="tracker-label">Booh Brawler NFTs: </span><span className="tracker-value">{userNfts.length}</span></div>
                 </div>
                 {/* Status Indicators */}
             </div>

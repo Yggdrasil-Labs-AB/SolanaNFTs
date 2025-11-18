@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { URI_SERVER } from "../config/config";
+import { IS_MAINNET } from '../config/config';
 
 const API_KEY = import.meta.env.VITE_SERVE_KEY
 
@@ -8,6 +9,9 @@ export const fetchBabyBooh = async (address) => {
 
 
     try {
+
+        if (!address) return;
+        if(!IS_MAINNET) return;
 
         const response = await axios.get(`${URI_SERVER}/api/boohbrawlers/usercoins`,
             {

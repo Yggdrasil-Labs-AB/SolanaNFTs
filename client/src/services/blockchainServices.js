@@ -31,7 +31,7 @@ const TEST_WALLET = "5ZyYTa4gR3pzMcgtHYYBfANL5nvc2za7EM5BjhB78ogz" //Update to W
 //CREATE AND CONNECT TO UMI WITH mplTokenMetadata Program
 const umi = createUmi(solanaNode)
 
-export const createCoreNft = async (nft, wallet, signature = "") => {
+export const createCoreNft = async (nft, wallet, signature = "", authToken) => {
 
     try {
         const requestBody = { nft, receiverPubKey: wallet.publicKey, signature };
@@ -40,10 +40,16 @@ export const createCoreNft = async (nft, wallet, signature = "") => {
 
         // Make the POST request to the backend
         const resp = await axios.post(
-            apiUrl, 
+            apiUrl,
             requestBody,
-            {headers: { "x-api-key": API_KEY }});
-        
+            {
+                headers: {
+                    "x-api-key": API_KEY,
+                    Authorization: `Bearer ${authToken}`,   // ✅ send JWT
+                },
+            }
+        );
+
         return resp;
 
     } catch (walletError) {
@@ -60,8 +66,6 @@ export const createSendSolTx = async (fromPubkeyString, payment = 0) => {
 
     console.log("Building Send Trasaction to: ", TEST_WALLET)
 
-    console.log(amount);
-
     try {
 
         const transaction = new Transaction();
@@ -72,8 +76,6 @@ export const createSendSolTx = async (fromPubkeyString, payment = 0) => {
         });
 
         transaction.add(sendSolInstruction);
-
-        console.log("Transaction built");
 
         return transaction;
     } catch (error) {
@@ -164,63 +166,63 @@ export const getCoreNftsClient = async (walletAddress) => {
     try {
         // Extract wallet public key from the request
         const ownerType = new PublicKey(walletAddress); // Ensure `walletPublicKey` is sent in the request body
-    
+
         // Fetch assets owned by the specified wallet
         const fetchedAssets = await fetchAssetsByOwner(umi, ownerType, {
-          skipDerivePlugins: false,
+            skipDerivePlugins: false,
         });
-    
+
         // console.log('Fetched assets:', assetsByOwner);
-    
+
         // Remove unnecessary fields (rentEpoch, lamports, pluginHeader, immutableMetadata)
         const sanitizedAssets = fetchedAssets.map(({ header, ...asset }) => {
-          const { ...sanitizedHeader } = header; // Remove rentEpoch and lamports
-          return {
-            ...asset,
-            header: sanitizedHeader, // Include sanitized header without rentEpoch and lamports
-          };
+            const { ...sanitizedHeader } = header; // Remove rentEpoch and lamports
+            return {
+                ...asset,
+                header: sanitizedHeader, // Include sanitized header without rentEpoch and lamports
+            };
         });
 
         const collection = sanitizedAssets.filter((nft) => nft.updateAuthority.address === COLLECTION_ADDRESS);
 
         return collection;
-    
-      } catch (error) {
+
+    } catch (error) {
         console.error('Error fetching assets:', error);
-      }
+    }
 }
 
 export const checkTransactionStatus = async (signature) => {
     try {
-      const { value } = await connection.getSignatureStatuses([signature], {
-        searchTransactionHistory: true,
-      });
-  
-      const status = value?.[0];
-      const confirmation = status?.confirmationStatus;
-  
-      if (confirmation === 'confirmed' || confirmation === 'finalized') {
-        console.log('✅ Transaction confirmed:', confirmation);
-        return true;
-      } else if (status) {
-        console.log('⏳ Transaction pending:', confirmation || 'pending');
-        return false;
-      } else {
-        console.warn('❌ Transaction not found or dropped from RPC history');
-        return false;
-      }
-    } catch (err) {
-      console.error('Error checking transaction status:', err);
-      return false;
-    }
-  };
+        const { value } = await connection.getSignatureStatuses([signature], {
+            searchTransactionHistory: true,
+        });
 
-  /**
- * Vote for an NFT concept.
- * @param {string} walletAddress - The voter's wallet address.
- * @returns {Promise<object>} Resolves with list of nft's [name, seed, roll].
- * @throws {Error} Throws an error if the request fails.
- */
+        const status = value?.[0];
+        const confirmation = status?.confirmationStatus;
+
+        if (confirmation === 'confirmed' || confirmation === 'finalized') {
+            console.log('✅ Transaction confirmed:', confirmation);
+            return true;
+        } else if (status) {
+            console.log('⏳ Transaction pending:', confirmation || 'pending');
+            return false;
+        } else {
+            console.warn('❌ Transaction not found or dropped from RPC history');
+            return false;
+        }
+    } catch (err) {
+        console.error('Error checking transaction status:', err);
+        return false;
+    }
+};
+
+/**
+* Vote for an NFT concept.
+* @param {string} walletAddress - The voter's wallet address.
+* @returns {Promise<object>} Resolves with list of nft's [name, seed, roll].
+* @throws {Error} Throws an error if the request fails.
+*/
 export const getCoreNFTs = async (walletPublicKey) => {
     try {
         const response = await axios.post(
@@ -233,17 +235,17 @@ export const getCoreNFTs = async (walletPublicKey) => {
 
         return response.data;
     } catch (error) {
-        console.error("Error while voting:", error.response?.data || error.message);
-        throw new Error(`Failed to vote for NFT: ${error.response?.data?.message || error.message}`);
+        console.error("Error getting core Nfts:", error.response?.data || error.message);
+        throw new Error(`Failed to get Nft Cores: ${error.response?.data?.message || error.message}`);
     }
 };
 
-  /**
- * Vote for an NFT concept.
- * @param {string} walletAddress - The voter's wallet address.
- * @returns {Promise<object>} Resolves with list of nft's [name, seed, roll].
- * @throws {Error} Throws an error if the request fails.
- */
+/**
+* Vote for an NFT concept.
+* @param {string} walletAddress - The voter's wallet address.
+* @returns {Promise<object>} Resolves with list of nft's [name, seed, roll].
+* @throws {Error} Throws an error if the request fails.
+*/
 export const getCoreNFTsDevnet = async (walletPublicKey) => {
     try {
         const response = await axios.post(

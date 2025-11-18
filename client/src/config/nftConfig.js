@@ -146,3 +146,9 @@ export const sellingThreshold = {
     epic: 50,
     legendary: 50
 }
+
+export const DEFAULT_ROYALTY_CONFIG = {
+  sellerFeeBps: 500,      // 5%
+  partnerShare: 50,        // 0% to partner, 100% to platform/user/etc
+  partnerWallet: "",      // no partner => "self"
+};

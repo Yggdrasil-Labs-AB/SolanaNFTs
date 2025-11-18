@@ -28,11 +28,13 @@ import { useTransactionsController } from '../../providers/TransactionsProvider'
 import { inGameCurrencyCost } from '../../config/gameConfig';
 
 import { useGlobalVariables } from '../../providers/GlobalVariablesProvider';
+import { useWalletAdmin } from '../../providers/WalletAdminProvider';
 
 
 const Marketplace = () => {
 
     const wallet = useWallet();
+    const { authToken, loginWithWallet } = useWalletAdmin();
     const { connection } = useConnection();
 
     const { checkUserDiscount } = useGlobalVariables();
@@ -121,18 +123,20 @@ const Marketplace = () => {
                         break;
 
                     case 'BABYBOOH':
-                        { console.log('In Baby Booh');
-                        // TODO: Implement conversion rate for BABY BOOH
-                        setPreCalcPayment(mintCosts);
-                        setSolPriceLoaded(true);
+                        {
+                            console.log('In Baby Booh');
+                            // TODO: Implement conversion rate for BABY BOOH
+                            setPreCalcPayment(mintCosts);
+                            setSolPriceLoaded(true);
 
-                        const rarityAttribute = nfts[selectedIndex].attributes.find(attr => attr.trait_type === "rarity");
-                        const nftRarity = rarityAttribute ? rarityAttribute.value : "common"; // default rarity if not found
+                            const rarityAttribute = nfts[selectedIndex].attributes.find(attr => attr.trait_type === "rarity");
+                            const nftRarity = rarityAttribute ? rarityAttribute.value : "common"; // default rarity if not found
 
-                        setInGameSpend(inGameCurrencyCost[nftRarity]);
+                            setInGameSpend(inGameCurrencyCost[nftRarity]);
 
-                        console.warn("Conversion rate for BABY BOOH is not implemented yet.");
-                        break; }
+                            console.warn("Conversion rate for BABY BOOH is not implemented yet.");
+                            break;
+                        }
 
                     case 'CARD':
                         if (nfts[selectedIndex]?.storeInfo?.price) {
@@ -231,8 +235,19 @@ const Marketplace = () => {
 
         setTxState('started');
 
+        let effectiveToken = authToken;
+
+        if (!effectiveToken) {
+            const resp = await loginWithWallet();
+            if (!resp || !resp.success) {
+                setTxState("failed");
+                alert("Wallet verification failed.");
+                return;
+            }
+            effectiveToken = resp.token; // ✅ fresh token from login
+        }
+
         let paymentTx;
-        console.log('createNft');
         try {
 
             if (paymentTracker === 'SOL') {
@@ -266,7 +281,7 @@ const Marketplace = () => {
                     setCreateState('started');
 
                     //TODO: HANDLE UI TRACKING OF PAYING WITH AND MINTING NFT
-                    const txSig = await handleNFTCreation(nfts[selectedIndex], wallet, paymentTx);
+                    const txSig = await handleNFTCreation(nfts[selectedIndex], wallet, paymentTx, effectiveToken);
 
                     //Track Transaction
                     if (paymentTracker === 'BABYBOOH') {
@@ -343,7 +358,7 @@ const Marketplace = () => {
         }
     };
 
-    const handleNFTCreation = async (nft, wallet, signature) => {
+    const handleNFTCreation = async (nft, wallet, signature, authToken) => {
 
         try {
             // Ensure NFT and wallet are provided
@@ -353,7 +368,7 @@ const Marketplace = () => {
             }
 
             // Call the function to create the NFT on the blockchain
-            const resp = await createCoreNft(nft, wallet, signature);
+            const resp = await createCoreNft(nft, wallet, signature, authToken);
 
             const transactionSignature = resp.data.serializedSignature; //Set transaction signature
 

@@ -4,7 +4,7 @@ import { toByteArray } from 'base64-js';
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { useWalletAdmin } from "../../hooks/useWalletAdmin";
+import { useWalletAdmin } from "../../providers/WalletAdminProvider";
 import TxModalManager from "../txModal/TxModalManager";
 
 import { useTransactionsController } from "../../providers/TransactionsProvider";

@@ -20,7 +20,8 @@ const TxModalManager = ({
     handleDeleteNftConcept, 
     handleAddNftConcept,
     handleImageChange,
-    handleModelUpload
+    handleModelUpload,
+    royaltyConfig
     }) => {
     
     const {
@@ -33,7 +34,7 @@ const TxModalManager = ({
             case 'create':
                 return <TxModalCreator handleAddNftConcept={handleAddNftConcept} />
             case "mint":
-                return <TxModalMint createNft={createNft} />;
+                return <TxModalMint createNft={createNft} royaltyConfig={royaltyConfig} />;
             case "delete":
                 return <TxModalDelete handleDeleteNftConcept={handleDeleteNftConcept} />;
             case "lock":

@@ -23,7 +23,6 @@ import SolConnection from '../Connection/SolConnection';
 import { convertUsdToSol } from '../../Utils/pricingModifiers';
 
 import { capitalizeFirstLetter } from '../../Utils/generalUtils';
-import { useNftConceptForm } from '../../hooks/useNftConceptForm';
 
 const NftSideNav = ({
     info,
@@ -46,7 +45,9 @@ const NftSideNav = ({
     isNameTaken,
     resetDivisionOnTypeChange,
     imageName,
-    modelName
+    modelName,
+    royalties,
+    setRoyalties,
 }) => {
 
     const {
@@ -84,7 +85,7 @@ const NftSideNav = ({
     }, [rarity]); // Trigger this effect whenever rarity changes
 
     // Determine the page title dynamically
-    const title = page === 'create' ? 'Concept Creator' : 'Concept Editor';
+    const title = page === 'create' ? 'Creator' : 'Editor';
 
     // Check if the metadata is locked
     const isMetadataLocked = !!storeInfo.metadataUri;
@@ -119,6 +120,14 @@ const NftSideNav = ({
 
         // Update the attribute value
         handleAttributeChange(index, "value", inputValue);
+    };
+
+    // --- Royalties handlers (inside NftSideNav component) ---
+    const handleRoyaltyFieldChange = (field, value) => {
+        setRoyalties((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
     };
 
     // Reset all state and metadata
@@ -517,46 +526,6 @@ const NftSideNav = ({
                     ))}
                 </div>
 
-                {/* Attributes -  #Talents */}
-                {/* <div>
-                    <h4 className="marykate" style={{ fontSize: "2rem" }}>Attributes</h4>
-                    {attributes.map((attribute, index) => {
-                        if (!attributesToTrack.includes(attribute.trait_type)) return null; // ❌ Skip non-tracked attributes
-
-                        return (
-                            <div key={index} style={{ marginBottom: '10px' }}>
-                                <label style={{ display: "block", marginBottom: "5px" }}>
-                                    {printAttributeTitles(attribute.trait_type)}
-                                </label>
-                                <input
-                                    type="number"
-                                    value={attribute.value === undefined ? '' : attribute.value}
-                                    placeholder="0"
-                                    onChange={(e) =>
-                                        handleAttributeInputChange(index, attribute.trait_type, e.target.value)
-                                    }
-                                    onBlur={(e) => {
-                                        if (e.target.value === '') {
-                                            handleAttributeChange(index, "value", "0");
-                                        }
-                                    }}
-                                    max={100}
-                                    disabled={!canEditFieldsWhenLocked}
-                                    style={{
-                                        width: "100%",
-                                        padding: "10px",
-                                        borderRadius: "4px",
-                                        border: "1px solid #555",
-                                        backgroundColor: "#2E2E2E",
-                                        color: "#FFF",
-                                    }}
-                                />
-                            </div>
-                        );
-                    })}
-                </div> */}
-
-
                 {/* Submit Button */}
                 {!isCreated && (
                     <>
@@ -588,6 +557,7 @@ const NftSideNav = ({
                         {!wallet.publicKey && <div className='d-flex justify-content-center'><SolConnection /></div>}
                     </>
                 )}
+                
             </form>
             {page === "create" && isCreated && (
                 <>

@@ -10,10 +10,9 @@ import Navbar from '../Navbar/Navbar';
 //Utility functions
 import { convertUsdToSol } from '../../Utils/pricingModifiers';
 import { uploadIconIPFS, uploadMetadata, uploadModelIPFS } from '../../services/pinataServices';
-import { uploadIcon } from '../../services/cloudinaryServices';
 import { addNftConcept, deleteNftConcept, saveMetadataUri, updateNftConcept } from '../../services/dbServices';
 import { createSendSolTx, getCoreNFTs } from '../../services/blockchainServices';
-import { applyAttributes, cleanAttributes, delay, rollSecureRandomInt } from '../../Utils/generalUtils';
+import { cleanAttributes, delay } from '../../Utils/generalUtils';
 
 //Imported packages
 import { useConnection } from '@solana/wallet-adapter-react';
@@ -26,10 +25,9 @@ import { ScreenProvider } from '../../providers/ScreenProvider';
 import { useTransactionsController } from '../../providers/TransactionsProvider';
 
 //HOOKS
-import { useWalletAdmin } from '../../hooks/useWalletAdmin';
+import { useWalletAdmin } from '../../providers/WalletAdminProvider';
 import { useNftConceptForm } from '../../hooks/useNftConceptForm';
 
-import { fetchRollQualityData } from '../../services/gameServices';
 import NftSideNav from '../SideNav/nftSideNav';
 
 const NftHomepage = () => {
@@ -98,6 +96,8 @@ const NftHomepage = () => {
     useEffect(() => {
 
         const asyncCall = async () => {
+
+            if(!wallet.publicKey) return;
 
             const data = await getCoreNFTs(wallet.publicKey?.toBase58());
             console.log(data);
@@ -378,7 +378,7 @@ const NftHomepage = () => {
         // SCREEN PROVIDER IS TO TRACK SCREEN SIZE AND DYNAMICALLY UPDATE CSS
         <ScreenProvider>
             {/* THIS Handles bulk of Homepage Components */}
-            <div style={{ overflow: 'hidden' }}>
+            <div >
                 <Navbar resetNftConceptForm={resetNftConceptForm} setIsDisabled={setIsDisabled} />
                 <div className="layout-container">
                     <NftSideNav info={info}

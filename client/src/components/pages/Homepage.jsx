@@ -10,7 +10,7 @@ const Homepage = () => {
         // SCREEN PROVIDER IS TO TRACK SCREEN SIZE AND DYNAMICALLY UPDATE CSS
         <ScreenProvider>
             {/* THIS Handles bulk of Homepage Components */}
-            <div style={{ overflow: 'hidden' }}>
+            <div>
                 <Navbar />
                 <div className="layout-container-items">
                     <HandleInGameItems />

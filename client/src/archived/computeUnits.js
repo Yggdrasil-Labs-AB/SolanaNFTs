@@ -47,14 +47,12 @@ export const computeTxUnits = async (umi, tx) => {
 
     const data = await response.json();
 
-    console.log(data);
     const unitsConsumed = data.result?.value?.unitsConsumed;
 
     const calculatedUnits = !unitsConsumed
         ? DEFAULT_COMPUTE_UNITS
         : Math.ceil(unitsConsumed * BUFFER_FACTOR);
 
-    console.log("Calculated Units", calculatedUnits);
     return calculatedUnits;
 }
 

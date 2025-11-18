@@ -7,8 +7,6 @@ const connectDB = async () => {
         ? process.env.MONGO_URI_PROD // Use production URI
         : process.env.MONGO_URI_DEV; // Use development URI
 
-    console.log(dbURI);
-
     await mongoose.connect(dbURI, {
       // useNewUrlParser: true,
       // useUnifiedTopology: true,
