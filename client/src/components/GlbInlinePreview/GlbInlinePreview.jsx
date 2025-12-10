@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import "../../css/GlbInlinePreview.css"
+import "../../css/glbinlinepreview.css"
 
 const GlbInlinePreview = ({ modelPreviewUrl, ipfsGateway = "https://ipfs.io/ipfs/" }) => {
   const [hadError, setHadError] = useState(false);
