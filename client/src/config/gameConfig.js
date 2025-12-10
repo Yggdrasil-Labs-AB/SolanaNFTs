@@ -10,7 +10,6 @@ export const stats = [
     "health",
     "damage",
     "defense",
-    "criticalStrikeDamage",
     "spellAttack",
     "spellDefense",
 ]; // Key talents used in the attributes system
@@ -21,9 +20,11 @@ export const statModifiers = [
     "resilienceModifier",
     "intelligenceModifier",
     "resistanceModifier",
-]
+] //DEPRECIATED
 
-export const combinedTraits = Array.from(new Set([...statModifiers, ...stats]));
+// export const combinedTraits = Array.from(new Set([...statModifiers, ...stats]));
+
+export const combinedTraits = stats;
 
 // Base Attributes Data
 export const attributesData = [
@@ -60,8 +61,6 @@ export const storeInfoData = {
     goldCost: 0,
     babyBoohCost: 0,
     boohShardsCost: 0,
-    rollQuality: 0,
-    statsRollSeed: 100,
 };
 
 // Option Types for Select Inputs

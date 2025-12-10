@@ -264,9 +264,6 @@ exports.createAndSendNFT = async (req, res) => {
       .json({ success: false, error: "Invalid NFT data." });
   }
 
-  console.log("NFT payload:", nft);
-  console.log("Royalty config from client:", nft.royaltyConfig);
-
   const rawCfg = nft.royaltyConfig || {};
 
   // --- ROLE-BASED ROYALTY LOGIC ----------------------------
@@ -309,19 +306,20 @@ exports.createAndSendNFT = async (req, res) => {
     royaltyCreator = walletAddress;
   }
 
-  console.log("Effective royalty config:", {
-    isAdmin,
-    royaltyBasisFee,
-    partnerTake,
-    platformTake,
-    royaltyCreator,
-  });
-
   try {
     const collection = await fetchCollection(umi, CORE_COLLECTION_ADDRESS);
     const assetSigner = generateSigner(umi);
 
-    const perComputeUnit = await getPriorityFee();
+    let perComputeUnit = 3_500_000; // default
+
+    try {
+      const est = await getPriorityFee();
+      if (Number.isFinite(est) && est > 0) {
+        perComputeUnit = est;
+      }
+    } catch (e) {
+      console.warn("Priority fee estimation failed, using default:", perComputeUnit, e.message);
+    }
 
     let builder = transactionBuilder()
       .add(setComputeUnitLimit(umi, { units: 600_000 }))

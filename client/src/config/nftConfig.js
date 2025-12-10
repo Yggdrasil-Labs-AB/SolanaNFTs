@@ -19,11 +19,11 @@ export const propertiesData = {
 
 // --- Stat modifiers you want included as trait_type/value pairs
 export const nftStatModifiers = [
-  "strength",
-  "vitality",
-  "resilience",
-  "intelligence",
-  "resistance",
+  "health",
+  "damage",
+  "defense",
+  "spellAttack",
+  "spellDefense",
 ];
 
 // --- Base attributes (do NOT mutate this directly)

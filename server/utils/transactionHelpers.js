@@ -1,45 +1,47 @@
 const getPriorityFee = async () => {
-  try {
-    const raw = JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "qn_estimatePriorityFees",
-      params: {
-        last_n_blocks: 100,
-        account: "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
-        api_version: 2,
+  const body = JSON.stringify({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "getRecentPrioritizationFees",
+    params: [
+      {
+        accountKeys: [
+          "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4", // or your program / JUP / whatever is hot
+        ],
       },
-    });
+    ],
+  });
 
-    const response = await fetch(process.env.SOLANA_NODE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: raw,
-    });
+  const res = await fetch(process.env.SOLANA_NODE, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  });
 
-    // Check HTTP status first
-    if (!response.ok) {
-      const text = await response.text();
-      console.error(
-        `Priority fee RPC error: HTTP ${response.status} - ${text}`
-      );
-      return 3_500_000; // let caller fall back
-    }
-
-    const result = await response.json();
-
-    if (!result || !result.result || !result.result.per_compute_unit) {
-      console.error("Unexpected priority fee response:", result);
-      return 3_500_000;
-    }
-
-    console.log(result);
-
-    return result.result.per_compute_unit.medium;
-  } catch (error) {
-    console.error("Error in getPriorityFee:", error);
-    return perComputeUnit = 3_500_000;
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Priority fee RPC error ${res.status}: ${text}`);
   }
+
+  const json = await res.json();
+
+  const fees = json.result;
+  if (!Array.isArray(fees) || fees.length === 0) {
+    throw new Error("No recent prioritization fees available");
+  }
+
+  // Take, say, the 75th percentile to be “fast but not insane”
+  const sorted = fees
+    .map((f) => f.prioritizationFee)
+    .filter((n) => typeof n === "number" && n > 0)
+    .sort((a, b) => a - b);
+
+  if (!sorted.length) {
+    throw new Error("No valid prioritization fees in response");
+  }
+
+  const idx = Math.floor(sorted.length * 0.75); // 75th percentile
+  return sorted[idx];
 };
 
 module.exports = { getPriorityFee };

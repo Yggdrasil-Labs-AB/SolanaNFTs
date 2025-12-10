@@ -89,35 +89,35 @@ const HandleInGameItems = () => {
             statsRollSeed: Number(seedNumber)
         };
 
-        const rarityAttribute = attributes.find(type => type.trait_type === "rarity");
-        const itemType = attributes.find(type => type.trait_type === "type");
-        const subItemType = attributes.find(type => type.trait_type === "subType");
+        // const rarityAttribute = attributes.find(type => type.trait_type === "rarity");
+        // const itemType = attributes.find(type => type.trait_type === "type");
+        // const subItemType = attributes.find(type => type.trait_type === "subType");
 
         // IMPORTANT: use updatedStoreInfo.rollQuality (number or string, doesn't matter yet)
-        const rolledAttributes = await fetchRollQualityData(
-            seedNumber,
-            updatedStoreInfo.rollQuality,
-            rarityAttribute?.value,
-            itemType?.value,
-            subItemType?.value
-        );
+        // const rolledAttributes = await fetchRollQualityData(
+        //     seedNumber,
+        //     updatedStoreInfo.rollQuality,
+        //     rarityAttribute?.value,
+        //     itemType?.value,
+        //     subItemType?.value
+        // );
 
-        const appliedAttributes = applyAttributes(
-            attributes,
-            rolledAttributes,
-            seedNumber,
-            updatedStoreInfo.rollQuality
-        );
+        // const appliedAttributes = applyAttributes(
+        //     attributes,
+        //     rolledAttributes,
+        //     seedNumber,
+        //     updatedStoreInfo.rollQuality
+        // );
 
         // local only; you can still call setAttributes/setStoreInfo if you want UI sync
-        setAttributes(appliedAttributes);
+        
         setStoreInfo(updatedStoreInfo);
         setInfo(hardInfo);
 
         // Combine raw data
         const combinedNewItemData = {
             ...hardInfo,
-            attributes: appliedAttributes,
+            attributes,
             storeInfo: updatedStoreInfo,
         };
 
@@ -151,9 +151,7 @@ const HandleInGameItems = () => {
             'goldCost',
             'babyBoohCost',
             'boohShardsCost',
-            'rollQuality',
             'season',
-            'statsRollSeed',
         ];
 
         const normalizedStoreInfo = { ...(item.storeInfo || {}) };
@@ -661,17 +659,6 @@ const HandleInGameItems = () => {
                                     min={1}
                                     value={toInputValue(storeInfo.season)}
                                     onChange={handleNumericStoreChange('season')}
-                                />
-                            </label>
-
-                            <label className="field">
-                                <span className="field-label">Roll Quality</span>
-                                <input
-                                    type="number"
-                                    min={0}
-                                    max={100}
-                                    value={toInputValue(storeInfo.rollQuality)}
-                                    onChange={handleNumericStoreChange('rollQuality')}
                                 />
                             </label>
                         </div>
