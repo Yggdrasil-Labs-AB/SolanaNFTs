@@ -28,7 +28,7 @@ import { useTransactionsController } from '../../providers/TransactionsProvider'
 import { useWalletAdmin } from '../../providers/WalletAdminProvider';
 import { useNftConceptForm } from '../../hooks/useNftConceptForm';
 
-import NftSideNav from '../SideNav/nftSideNav';
+import NftSideNav from '../SideNav/NftSideNav';
 
 const NftHomepage = () => {
 
